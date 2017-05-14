@@ -1,10 +1,12 @@
-//Imports
-var canvas = document.getElementById('canvasid'),
-    ctx = canvas.getContext('2d'),
-    socket = io();
+//Socket.io
+socket.on('att', function(){
 
-//Testing socket.io
-socket.emit('test', 'jaw');
-socket.on('test', function(msg){
-  ctx.fillText(msg, 0, 10);
+  //Clear screen
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, 960, 560);
+
+  //Prompt
+  inputs();
+  attChat();
+
 });

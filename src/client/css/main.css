@@ -3,3 +3,14 @@
 	padding: 0;
 	border: 0;
 }
+
+#canvasid{
+	image-rendering: pixelated;
+
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -480px;
+	margin-top: -280px;
+	border: 1px solid black;
+}
