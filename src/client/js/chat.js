@@ -44,16 +44,40 @@ function inputs(){
     if(command.length < 50){
       //a~z
       for(var i=65; i<=90; ++i){
-        addCommand(i);
+        if (!key[18]) addCommand(i);
       }
 
       //0~9
       for(var i=49; i<=57; ++i){
-        addCommand(i);
+        if (!key[16]) addCommand(i);
       }
 
       //Space
       addCommand(32);
+
+      //','
+      if (key[188]){
+        command = command+',';
+        key[188] = false;
+      }
+
+      //'.'
+      if (key[190]){
+        command = command+'.';
+        key[190] = false;
+      }
+
+      //'?'
+      if (key[18] && key [87]){
+        command = command+'?';
+        key[87] = false;
+      }
+
+      //'!'
+      if (key[16] && key [49]){
+        command = command+'!';
+        key[49] = false;
+      }
 
       //\Command
       if (key[226]){
@@ -72,7 +96,8 @@ function inputs(){
 //Write the key in the prompt
 function addCommand(code){
   if (key[code]){
-    command = command+String.fromCharCode(code).toLowerCase();
+    if (key[16]) command = command+String.fromCharCode(code)
+    else command = command+String.fromCharCode(code).toLowerCase();
     key[code] = false;
   }
 }
