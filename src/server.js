@@ -76,14 +76,14 @@ io.on('connection', function(socket){
     if (msg.substring(0, 1) == '\\'){
 
       //Nickname config
-      if(msg.substring(1, 5) == 'nick'){
+      if(msg.substring(1, 5) == 'nick' && msg.substring(6, msg.length) != ''){
         players[id].nickname = msg.substring(6, msg.length);
-        if (players[id].nickname != '') chatPut('[*] user \''+players[id].nickname+'\' connected');
+        chatPut('[*] user \''+players[id].nickname+'\' connected');
       }
 
     }
     //Normal message
-    else chatPut('['+players[id].nickname+'] '+msg);
+    else if (msg != '') chatPut('['+players[id].nickname+'] '+msg);
 
     //Update chat
     socket.emit('chat listen', chatHis);
