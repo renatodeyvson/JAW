@@ -12,8 +12,8 @@ var express = require('express'),
 app.use(express.static(__dirname + '/client'));
 
 //Listen
-var ip = process.env.OPENSHIFT_NODEJS_IP || process.env.IP || '127.0.0.1';
-var port = process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 3000;
+var ip = process.env.IP || '127.0.0.1';
+var port = process.env.PORT || 3000;
 http.listen(port, ip, function(){
   console.log('on %s:%d', ip, port);
 });
