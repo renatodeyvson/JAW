@@ -12,10 +12,9 @@ var express = require('express'),
 app.use(express.static(__dirname + '/client'));
 
 //Listen
-var ip = process.env.IP || '127.0.0.1';
 var port = process.env.PORT || 3000;
-http.listen(port, ip, function(){
-  console.log('on %s:%d', ip, port);
+http.listen(port, function(){
+  console.log('port: %d', port);
 });
 
 /******************************************************************************
