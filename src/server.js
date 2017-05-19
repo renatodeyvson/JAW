@@ -28,7 +28,8 @@ var ids = [],
     qtdPlayers = 0;
 
 //Chat
-var chatHis = [ '', '', '', ''];
+var chatHis = [ '', '', '', ''],
+    chatHisColor = [ 'black', 'black', 'black', 'black'];
 
 //Inputs
 var key = [];
@@ -40,9 +41,6 @@ var key = [];
 //When connected
 io.on('connection', function(socket){
 
-  //Send chat history
-  socket.emit('chat listen', chatHis);
-
   //Prepare key listener
   key[qtdPlayers] = [];
 
@@ -50,10 +48,21 @@ io.on('connection', function(socket){
   ids[socket.id] = qtdPlayers;
   players[qtdPlayers] = {
     socket: socket.id,
-    nickname: '?'
+    nickname: 'anonymous',
+    x: 480,
+    y: 280,
+    width: 50,
+    height: 75,
+    velocity: 5
   };
 
+  //Put log
+  chatPut('[*] user \''+players[qtdPlayers].nickname+'\' connected', 'green');
+
   ++qtdPlayers;
+
+  //Send chat history
+  chatSend();
 
   //Input down
   socket.on('keydown', function(msg){
@@ -77,17 +86,16 @@ io.on('connection', function(socket){
 
       //Nickname config
       if(msg.substring(1, 5) == 'nick' && msg.substring(6, msg.length) != ''){
-        players[id].nickname = msg.substring(6, msg.length);
-        chatPut('[*] user \''+players[id].nickname+'\' connected');
+        players[id].nickname = msg.substring(6, 26);
+        chatPut('[*] user \''+players[id].nickname+'\' connected', 'green');
       }
 
     }
     //Normal message
-    else if (msg != '') chatPut('['+players[id].nickname+'] '+msg);
+    else if (msg != '') chatPut('['+players[id].nickname+'] '+msg, 'black');
 
-    //Update chat
-    socket.emit('chat listen', chatHis);
-    socket.broadcast.emit('chat listen', chatHis);
+    //Send chat history
+    chatSend();
 
   });
 
@@ -103,6 +111,12 @@ io.on('connection', function(socket){
     //When a new player connect, the last player will be overwritten
     --qtdPlayers;
 
+    //Put log
+    chatPut('[*] user \''+players[id].nickname+'\' disconnected', 'red');
+
+    //Send chat history
+    chatSend();
+
   });
 
 });
@@ -110,7 +124,7 @@ io.on('connection', function(socket){
 //Main function
 function loop(){
   inputs();
-  io.emit('att');
+  io.emit('att', { players: players, qtdPlayers: qtdPlayers});
 }
 
 //Infinit loop
@@ -124,14 +138,40 @@ setInterval(loop, 15);
 function inputs(){
   //For each player
   for (var i=0; i<qtdPlayers; ++i){
-
+    //A
+    if (key[i][65]){
+      players[i].x -= players[i].velocity;
+    }
+    //D
+    if (key[i][68]){
+      players[i].x += players[i].velocity;
+    }
+    //S
+    if (key[i][83]){
+      players[i].y += players[i].velocity;
+    }
+    //W
+    if (key[i][87]){
+      players[i].y -= players[i].velocity;
+    }
   }
 }
 
 //Adding a new message into chat history
-function chatPut(msg){
-  chatHis[0] = chatHis[1];
-  chatHis[1] = chatHis[2];
-  chatHis[2] = chatHis[3];
-  chatHis[3] = msg;
+function chatPut(msg, color){
+  if (msg.length <= 50){
+    chatHis[0] = chatHis[1];
+    chatHis[1] = chatHis[2];
+    chatHis[2] = chatHis[3];
+    chatHis[3] = msg;
+
+    chatHisColor[0] = chatHisColor[1];
+    chatHisColor[1] = chatHisColor[2];
+    chatHisColor[2] = chatHisColor[3];
+    chatHisColor[3] = color;
+  }
+}
+
+function chatSend(){
+  io.emit('chat listen', { msg: chatHis, color: chatHisColor});
 }

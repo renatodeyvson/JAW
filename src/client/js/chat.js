@@ -1,20 +1,26 @@
 //Globals
 var chatHis = [ '', '', '', ''],
+    chatHisColor = [ 'black', 'black', 'black', 'black'],
     command = '';
 
 //Socket.io
-socket.on('chat listen', function(msg){
-  chatHis = msg;
+socket.on('chat listen', function(params){
+  chatHis = params.msg;
+  chatHisColor = params.color;
 });
 
 //Prompt
 function attChat(){
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = chatHisColor[0];
   ctx.fillText(chatHis[0], 10, 470);
+  ctx.fillStyle = chatHisColor[1];
   ctx.fillText(chatHis[1], 10, 490);
+  ctx.fillStyle = chatHisColor[2];
   ctx.fillText(chatHis[2], 10, 510);
+  ctx.fillStyle = chatHisColor[3];
   ctx.fillText(chatHis[3], 10, 530);
-  if (prompt) ctx.fillStyle = 'red';
+  if (prompt) ctx.fillStyle = 'blue';
+  else ctx.fillStyle = 'black';
   ctx.fillText('> '+command, 2, 550);
 }
 
