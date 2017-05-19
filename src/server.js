@@ -105,7 +105,7 @@ io.on('connection', function(socket){
 
     //The current player will be the reference of the last player connected
     ids[players[qtdPlayers-1].socket] = id;
-    players[id].socket = players[qtdPlayers-1].socket;
+    players[id] = players[qtdPlayers-1];
 
     //When a new player connect, the last player will be overwritten
     --qtdPlayers;
