@@ -1,7 +1,7 @@
 {
   "name": "jaw",
   "version": "1.0.0",
-  "description": "Just another world, a [ js, scalable, open world, pixelated, survivor, enter and play, satanist, realtime online, browser ] game",
+  "description": "just another world, a [ js, open world, 2d, pixelated, survivor, enter and play, realtime online, browser ] game",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,17 +15,16 @@
     "another",
     "world",
     "js",
-    "scalable",
+    "2d",
     "pixelated",
     "survivor",
-    "satanist",
     "realtime",
     "online",
     "browser",
     "game"
   ],
   "author": "renatodeyvson",
-  "license": "ISC",
+  "license": "you are free",
   "bugs": {
     "url": "https://github.com/renatodeyvson/jaw/issues"
   },

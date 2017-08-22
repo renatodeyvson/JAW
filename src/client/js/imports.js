@@ -1,13 +1,13 @@
-//Imports
+//imports
 var canvas = document.getElementById('canvasid'),
     ctx = canvas.getContext('2d'),
     socket = io();
 
-//Globals
+//globals
 var prompt = false;
     key = [];
 
-//Input Listener
+//input Listener
 window.addEventListener('keydown', function(e) {
   key[e.keyCode] = true;
   if (!prompt) socket.emit('keydown', e.keyCode);

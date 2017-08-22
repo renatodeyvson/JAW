@@ -2,16 +2,16 @@
 *                                   Setup                                     *
 ******************************************************************************/
 
-//Imports
+//imports
 var express = require('express'),
     app = express(),
     http = require('http').Server(app),
     io = require('socket.io')(http);
 
-//Router
+//router
 app.use(express.static(__dirname + '/client'));
 
-//Listen
+//listen
 var port = process.env.PORT || 3000;
 http.listen(port, function(){
   console.log('port: %d', port);
@@ -21,29 +21,29 @@ http.listen(port, function(){
 *                                  Globals                                    *
 ******************************************************************************/
 
-//Players
+//players
 var ids = [],
     players = [],
     qtdPlayers = 0;
 
-//Chat
+//chat
 var chatHis = [ '', '', '', ''],
     chatHisColor = [ 'black', 'black', 'black', 'black'];
 
-//Inputs
+//inputs
 var key = [];
 
 /******************************************************************************
 *                                Socket.io                                    *
 ******************************************************************************/
 
-//When connected
+//when connected
 io.on('connection', function(socket){
 
-  //Prepare key listener
+  //prepare key listener
   key[qtdPlayers] = [];
 
-  //Save player's data
+  //save player's data
   ids[socket.id] = qtdPlayers;
   players[qtdPlayers] = {
     socket: socket.id,
@@ -55,108 +55,108 @@ io.on('connection', function(socket){
     velocity: 5
   };
 
-  //Put log
+  //put log
   chatPut('[*] user \''+players[qtdPlayers].nickname+'\' connected', 'green');
 
   ++qtdPlayers;
 
-  //Send chat history
+  //send chat history
   chatSend();
 
-  //Input down
+  //input down
   socket.on('keydown', function(msg){
     var id = ids[socket.id];
     key[id][msg] = true;
   });
 
-  //Input up
+  //input up
   socket.on('keyup', function(msg){
     var id = ids[socket.id];
     key[id][msg] = false;
   });
 
-  //Chat
+  //chat
   socket.on('chat push', function(msg){
 
     var id = ids[socket.id];
 
-    //\Command
+    //\command
     if (msg.substring(0, 1) == '\\'){
 
-      //Nickname config
+      //nickname config
       if(msg.substring(1, 5) == 'nick' && msg.substring(6, msg.length) != ''){
         players[id].nickname = msg.substring(6, 26);
         chatPut('[*] user \''+players[id].nickname+'\' connected', 'green');
       }
 
     }
-    //Normal message
+    //normal message
     else if (msg != '') chatPut('['+players[id].nickname+'] '+msg, 'black');
 
-    //Send chat history
+    //send chat history
     chatSend();
 
   });
 
-  //Ending
+  //ending
   socket.on('disconnect', function(){
 
     var id = ids[socket.id];
 
-    //The current player will be the reference of the last player connected
+    //the current player will be the reference of the last player connected
     ids[players[qtdPlayers-1].socket] = id;
     players[id] = players[qtdPlayers-1];
 
-    //When a new player connect, the last player will be overwritten
+    //when a new player connect, the last player will be overwritten
     --qtdPlayers;
 
-    //Put log
+    //put log
     chatPut('[*] user \''+players[id].nickname+'\' disconnected', 'red');
 
-    //Send chat history
+    //send chat history
     chatSend();
 
   });
 
 });
 
-//Main function
+//main function
 function loop(){
   inputs();
   io.emit('att', { players: players, qtdPlayers: qtdPlayers});
 }
 
-//Infinit loop
+//infinit loop
 setInterval(loop, 15);
 
 /******************************************************************************
 *                                   Aux                                       *
 ******************************************************************************/
 
-//Inputs
+//inputs
 function inputs(){
-  //For each player
+  //for each player
   for (var i=0; i<qtdPlayers; ++i){
-    //A
+    //a
     if (key[i][65]){
       players[i].x -= players[i].velocity;
     }
-    //D
+    //d
     if (key[i][68]){
       players[i].x += players[i].velocity;
     }
-    //S
+    //s
     if (key[i][83]){
       players[i].y += players[i].velocity;
     }
-    //W
+    //w
     if (key[i][87]){
       players[i].y -= players[i].velocity;
     }
   }
 }
 
-//Adding a new message into chat history
+//adding a new message into chat history
 function chatPut(msg, color){
   if (msg.length <= 50){
     chatHis[0] = chatHis[1];
@@ -171,6 +171,7 @@ function chatPut(msg, color){
   }
 }
 
+//send messages
 function chatSend(){
   io.emit('chat listen', { msg: chatHis, color: chatHisColor});
 }

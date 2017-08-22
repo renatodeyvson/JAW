@@ -1,15 +1,15 @@
-//Globals
+//globals
 var chatHis = [ '', '', '', ''],
     chatHisColor = [ 'black', 'black', 'black', 'black'],
     command = '';
 
-//Socket.io
+//socket.io
 socket.on('chat listen', function(params){
   chatHis = params.msg;
   chatHisColor = params.color;
 });
 
-//Prompt
+//prompt
 function attChat(){
   ctx.fillStyle = chatHisColor[0];
   ctx.fillText(chatHis[0], 10, 470);
@@ -24,10 +24,10 @@ function attChat(){
   ctx.fillText('> '+command, 2, 550);
 }
 
-//Inputs
+//inputs
 function inputs(){
 
-  //Enter
+  //enter
   if (key[13]){
     key[13] = false;
     prompt = !prompt;
@@ -41,7 +41,7 @@ function inputs(){
 
   if (prompt){
 
-    //Backspace
+    //backspace
     if (key[8]){
       command = command.substring(0, command.length-1);
       key[8] = false;
@@ -53,25 +53,8 @@ function inputs(){
         if (!key[18]) addCommand(i);
       }
 
-      //0~9
-      for(var i=49; i<=57; ++i){
-        if (!key[16]) addCommand(i);
-      }
-
-      //Space
+      //space
       addCommand(32);
-
-      //','
-      if (key[188]){
-        command = command+',';
-        key[188] = false;
-      }
-
-      //'.'
-      if (key[190]){
-        command = command+'.';
-        key[190] = false;
-      }
 
       //'?'
       if (key[18] && key [87]){
@@ -79,13 +62,7 @@ function inputs(){
         key[87] = false;
       }
 
-      //'!'
-      if (key[16] && key [49]){
-        command = command+'!';
-        key[49] = false;
-      }
-
-      //\Command
+      //'\'
       if (key[226]){
         command = command+'\\';
         key[226] = false;
@@ -99,11 +76,10 @@ function inputs(){
 *                                   Aux                                       *
 ******************************************************************************/
 
-//Write the key in the prompt
+//write the key in the prompt
 function addCommand(code){
   if (key[code]){
-    if (key[16]) command = command+String.fromCharCode(code)
-    else command = command+String.fromCharCode(code).toLowerCase();
+    command = command+String.fromCharCode(code).toLowerCase();
     key[code] = false;
   }
 }
