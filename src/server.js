@@ -1,5 +1,5 @@
 /******************************************************************************
-*                                   Setup                                     *
+*                                   setup                                     *
 ******************************************************************************/
 
 //imports
@@ -18,13 +18,17 @@ http.listen(port, function(){
 });
 
 /******************************************************************************
-*                                  Globals                                    *
+*                                  globals                                    *
 ******************************************************************************/
 
 //players
 var ids = [],
     players = [],
     qtdPlayers = 0;
+
+//essences
+var essences = [],
+    qtdEssences = 100;
 
 //chat
 var chatHis = [ '', '', '', ''],
@@ -34,7 +38,20 @@ var chatHis = [ '', '', '', ''],
 var key = [];
 
 /******************************************************************************
-*                                Socket.io                                    *
+*                                   start                                     *
+******************************************************************************/
+
+//essences
+for (var i=0; i<qtdEssences; ++i){
+  essences[i] = {
+    x: getRandomInt(-4000, 4000),
+    y: getRandomInt(-4000, 4000),
+    radius: 10
+  }
+}
+
+/******************************************************************************
+*                                socket.io                                    *
 ******************************************************************************/
 
 //when connected
@@ -48,12 +65,15 @@ io.on('connection', function(socket){
   players[qtdPlayers] = {
     socket: socket.id,
     nickname: 'anonymous',
-    x: 480,
-    y: 280,
+    x: 0,
+    y: 0,
     width: 50,
     height: 75,
     velocity: 5
   };
+
+  //send player id
+  socket.emit('id', socket.id);
 
   //put log
   chatPut('[*] user \''+players[qtdPlayers].nickname+'\' connected', 'green');
@@ -123,14 +143,19 @@ io.on('connection', function(socket){
 //main function
 function loop(){
   inputs();
-  io.emit('att', { players: players, qtdPlayers: qtdPlayers});
+  io.emit('att', {
+    players: players,
+    qtdPlayers: qtdPlayers,
+    essences: essences,
+    qtdEssences: qtdEssences
+  });
 }
 
 //infinit loop
 setInterval(loop, 15);
 
 /******************************************************************************
-*                                   Aux                                       *
+*                                   aux                                       *
 ******************************************************************************/
 
 //inputs
@@ -139,19 +164,23 @@ function inputs(){
   for (var i=0; i<qtdPlayers; ++i){
     //a
     if (key[i][65]){
-      players[i].x -= players[i].velocity;
+      if (players[i].x - players[i].velocity > -4000)
+        players[i].x -= players[i].velocity;
     }
     //d
     if (key[i][68]){
-      players[i].x += players[i].velocity;
+      if (players[i].x + players[i].velocity < 4000)
+        players[i].x += players[i].velocity;
     }
     //s
     if (key[i][83]){
-      players[i].y += players[i].velocity;
+      if (players[i].y - players[i].velocity < 4000)
+        players[i].y += players[i].velocity;
     }
     //w
     if (key[i][87]){
-      players[i].y -= players[i].velocity;
+      if (players[i].y - players[i].velocity > -4000)
+        players[i].y -= players[i].velocity;
     }
   }
 }
@@ -174,4 +203,11 @@ function chatPut(msg, color){
 //send messages
 function chatSend(){
   io.emit('chat listen', { msg: chatHis, color: chatHisColor});
+}
+
+//random number between min and max
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
 }
