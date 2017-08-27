@@ -28,7 +28,7 @@ var ids = [],
 
 //essences
 var essences = [],
-    qtdEssences = 100;
+    qtdEssences = 1000;
 
 //chat
 var chatHis = [ '', '', '', ''],
@@ -46,7 +46,8 @@ for (var i=0; i<qtdEssences; ++i){
   essences[i] = {
     x: getRandomInt(-4000, 4000),
     y: getRandomInt(-4000, 4000),
-    radius: 10
+    width: 100,
+    height: 100
   }
 }
 
@@ -69,7 +70,8 @@ io.on('connection', function(socket){
     y: 0,
     width: 50,
     height: 75,
-    velocity: 5
+    velocity: 5,
+    qtdEssences: 0
   };
 
   //send player id
@@ -143,6 +145,17 @@ io.on('connection', function(socket){
 //main function
 function loop(){
   inputs();
+
+  for (var i=0; i<qtdPlayers; ++i){
+    for (var j=0; j<qtdEssences;++j){
+      if (checkCollision(players[i], essences[j])){
+        players[i].qtdEssences += 1;
+        essences[j].x = getRandomInt(-4000, 4000);
+        essences[j].y = getRandomInt(-4000, 4000);
+      }
+    }
+  }
+
   io.emit('att', {
     players: players,
     qtdPlayers: qtdPlayers,
@@ -210,4 +223,13 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function checkCollision(obj1, obj2){
+  if (obj1 != undefined && obj2 != undefined
+    && obj1.x + obj1.width > obj2.x && obj1.x < obj2.x + obj2.width
+    && obj1.y + obj1.height > obj2.y && obj1.y < obj2.y + obj2.height){
+    return true;
+  }
+  return false;
 }

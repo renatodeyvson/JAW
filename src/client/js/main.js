@@ -35,12 +35,16 @@ socket.on('att', function(params){
 
   //print essences (test)
   for (var i=0; i<qtdEssences; ++i){
-    ctx.fillStyle = 'black';
-    ctx.beginPath();
-    ctx.arc(essences[i].x, essences[i].y, essences[i].radius, 0, 2*Math.PI);
     ctx.fillStyle = 'yellow';
-    ctx.fill();
-    ctx.stroke();
+    ctx.fillRect(essences[i].x, essences[i].y, essences[i].width, essences[i].height);
+  }
+
+  //print score (test)
+  for (var i=0; i<qtdPlayers; ++i){
+    if (players[i].socket == id){
+      ctx.fillStyle = 'black';
+      ctx.fillText(players[i].qtdEssences, players[i].x+20, players[i].y+30);
+    }
   }
 
   //restore context
