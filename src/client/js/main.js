@@ -11,7 +11,9 @@ socket.on('att', function(params){
   var players = params.players,
       qtdPlayers = params.qtdPlayers,
       essences = params.essences,
-      qtdEssences = params.qtdEssences;
+      qtdEssences = params.qtdEssences,
+      stones = params.stones,
+      qtdStones = params.qtdStones;
 
   //clear screen
   ctx.clearRect(0, 0, 960, 560);
@@ -37,6 +39,17 @@ socket.on('att', function(params){
   for (var i=0; i<qtdEssences; ++i){
     ctx.fillStyle = 'yellow';
     ctx.fillRect(essences[i].x, essences[i].y, essences[i].width, essences[i].height);
+  }
+
+  //print stone (test)
+  for (var i=0; i<qtdPlayers; ++i){
+    for (var j=0; j<qtdStones; ++j){
+      if (players[i].socket == id){
+        if (players[i].stone > -1 && !stones[players[i].stone].onGround) ctx.fillStyle = "violet";
+        else ctx.fillStyle = "red";
+        ctx.fillRect(stones[j].x, stones[j].y, stones[j].width, stones[j].height);
+      }
+    }
   }
 
   //print score (test)

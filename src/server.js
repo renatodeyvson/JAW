@@ -30,6 +30,10 @@ var ids = [],
 var essences = [],
     qtdEssences = 1000;
 
+//stones
+var stones = [],
+    qtdStones = 100;
+
 //chat
 var chatHis = [ '', '', '', ''],
     chatHisColor = [ 'black', 'black', 'black', 'black'];
@@ -48,6 +52,22 @@ for (var i=0; i<qtdEssences; ++i){
     y: getRandomInt(-4000, 4000),
     width: 100,
     height: 100
+  }
+}
+
+//stones
+for (var i=0; i<qtdStones; ++i){
+  stones[i] = {
+    x: getRandomInt(-4000, 4000),
+    y: getRandomInt(-4000, 4000),
+    width: 50,
+    height: 50,
+    velocity: 10,
+    onGround: true,
+    rangeUp: 0,
+    rangeDown: 0,
+    rangeLeft: 0,
+    rangeRigth: 0
   }
 }
 
@@ -71,7 +91,8 @@ io.on('connection', function(socket){
     width: 50,
     height: 75,
     velocity: 5,
-    qtdEssences: 0
+    qtdEssences: 0,
+    stone: -1
   };
 
   //send player id
@@ -145,7 +166,9 @@ io.on('connection', function(socket){
 //main function
 function loop(){
   inputs();
+  animateStones();
 
+  //collision between player and essence
   for (var i=0; i<qtdPlayers; ++i){
     for (var j=0; j<qtdEssences;++j){
       if (checkCollision(players[i], essences[j])){
@@ -156,11 +179,45 @@ function loop(){
     }
   }
 
+  //collision between player and stone (pick)
+  for (var i=0; i<qtdPlayers; ++i){
+      for (var j=0; j<qtdStones;++j){
+       if (checkCollision(players[i], stones[j]) && players[i].stone < 0 && stones[j].onGround){
+         players[i].stone = j;
+         stones[j].onGround = false;
+         stones[j].x = players[i].x;
+         stones[j].y = players[i].y;
+       }
+      }
+  }
+
+  //collision between player and stone (shoot)
+  for (var i=0; i<qtdPlayers; ++i){
+    for (var j=0; j<qtdStones;++j){
+      if (checkCollision(players[i], stones[j]) && !stones[j].onGround && players[i].stone != j){
+        if (players[i].stone > -1) stones[players[i].stone].onGround = true;
+        players[i] = {
+          socket: players[i].socket,
+          nickname: players[i].nickname,
+          x: 0,
+          y: 0,
+          width: players[i].width,
+          height: players[i].height,
+          velocity: players[i].velocity,
+          qtdEssences: 0,
+          stone: -1
+        }
+      }
+    }
+  }
+
   io.emit('att', {
     players: players,
     qtdPlayers: qtdPlayers,
     essences: essences,
-    qtdEssences: qtdEssences
+    qtdEssences: qtdEssences,
+    stones: stones,
+    qtdStones: qtdStones
   });
 }
 
@@ -177,23 +234,51 @@ function inputs(){
   for (var i=0; i<qtdPlayers; ++i){
     //a
     if (key[i][65]){
-      if (players[i].x - players[i].velocity > -4000)
+      if (players[i].x - players[i].velocity > -4000){
         players[i].x -= players[i].velocity;
+        if (players[i].stone > -1) stones[players[i].stone].x -= players[i].velocity;
+      }
     }
     //d
     if (key[i][68]){
-      if (players[i].x + players[i].velocity < 4000)
+      if (players[i].x + players[i].velocity < 4000){
         players[i].x += players[i].velocity;
+        if (players[i].stone > -1) stones[players[i].stone].x += players[i].velocity;
+      }
     }
     //s
     if (key[i][83]){
-      if (players[i].y - players[i].velocity < 4000)
+      if (players[i].y - players[i].velocity < 4000){
         players[i].y += players[i].velocity;
+        if (players[i].stone > -1) stones[players[i].stone].y += players[i].velocity;
+      }
     }
     //w
     if (key[i][87]){
-      if (players[i].y - players[i].velocity > -4000)
+      if (players[i].y - players[i].velocity > -4000){
         players[i].y -= players[i].velocity;
+        if (players[i].stone > -1) stones[players[i].stone].y -= players[i].velocity;
+      }
+    }
+    //i
+    if (key[i][73] && players[i].stone > -1){
+      shoot(i, 'UP');
+      key[i][73] = false;
+    }
+    //j
+    if (key[i][74] && players[i].stone > -1){
+      shoot(i, 'LEFT');
+      key[i][74] = false;
+    }
+    //k
+    if (key[i][75] && players[i].stone > -1){
+      shoot(i, 'DOWN');
+      key[i][75] = false;
+    }
+    //l
+    if (key[i][76] && players[i].stone > -1){
+      shoot(i, 'RIGTH');
+      key[i][76] = false;
     }
   }
 }
@@ -225,6 +310,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
+//check collision between two objects
 function checkCollision(obj1, obj2){
   if (obj1 != undefined && obj2 != undefined
     && obj1.x + obj1.width > obj2.x && obj1.x < obj2.x + obj2.width
@@ -232,4 +318,69 @@ function checkCollision(obj1, obj2){
     return true;
   }
   return false;
+}
+
+//throw animation of the stones
+function animateStones(){
+  for (var i=0; i<qtdStones; ++i){
+
+    if (stones[i].rangeUp > 0){
+      stones[i].y -= stones[i].velocity;
+      stones[i].rangeUp -= stones[i].velocity;
+      if (stones[i].rangeUp <= 0){
+        resetStone(i);
+      }
+    }
+    else if (stones[i].rangeDown > 0){
+      stones[i].y += stones[i].velocity;
+      stones[i].rangeDown -= stones[i].velocity;
+      if (stones[i].rangeDown <= 0){
+        resetStone(i);
+      }
+    }
+    else if (stones[i].rangeLeft > 0){
+      stones[i].x -= stones[i].velocity;
+      stones[i].rangeLeft -= stones[i].velocity;
+      if (stones[i].rangeLeft <= 0){
+        resetStone(i);
+      }
+    }
+    else if (stones[i].rangeRigth > 0){
+      stones[i].x += stones[i].velocity;
+      stones[i].rangeRigth -= stones[i].velocity;
+      if (stones[i].rangeRigth <= 0){
+        resetStone(i);
+      }
+    }
+
+  }
+}
+
+//
+function resetStone(stone){
+  stones[stone].onGround = true;
+}
+
+//set the stone state to shoot
+function shoot(player, direction){
+  var stone = players[player].stone;
+
+  if (direction == 'UP'){
+     stones[stone].y -= stones[stone].height;
+     stones[stone].rangeUp = 300;
+  }
+  else if (direction == 'LEFT'){
+    stones[stone].x -= stones[stone].height;
+    stones[stone].rangeLeft = 300;
+  }
+  else if (direction == 'DOWN'){
+    stones[stone].y += players[player].height;
+    stones[stone].rangeDown = 300;
+  }
+  else if (direction == 'RIGTH'){
+    stones[stone].x += players[player].width;
+    stones[stone].rangeRigth = 300;
+  }
+
+  players[player].stone = -1;
 }
