@@ -42,22 +42,30 @@ socket.on('att', function(params){
   }
 
   //print stone (test)
-  for (var i=0; i<qtdPlayers; ++i){
-    for (var j=0; j<qtdStones; ++j){
-      if (players[i].socket == id){
-        if (players[i].stone > -1 && !stones[players[i].stone].onGround) ctx.fillStyle = "violet";
-        else ctx.fillStyle = "red";
-        ctx.fillRect(stones[j].x, stones[j].y, stones[j].width, stones[j].height);
-      }
-    }
+  for (var j=0; j<qtdStones; ++j){
+    ctx.fillStyle = "red";
+    ctx.fillRect(stones[j].x, stones[j].y, stones[j].width, stones[j].height);
   }
 
   //print score (test)
   for (var i=0; i<qtdPlayers; ++i){
+
+    ctx.fillStyle = 'black';
+
+    //personal score
     if (players[i].socket == id){
-      ctx.fillStyle = 'black';
       ctx.fillText(players[i].qtdEssences, players[i].x+20, players[i].y+30);
     }
+
+    //global score
+    players.sort(function(a, b){
+      return b.qtdEssences - a.qtdEssences;
+    });
+    
+    if (players[0] != undefined) ctx.fillText('#1 '+players[0].nickname+': '+players[0].qtdEssences, players[i].x+20, players[i].y+50);
+    if (players[1] != undefined) ctx.fillText('#2 '+players[1].nickname+': '+players[1].qtdEssences, players[i].x+20, players[i].y+60);
+    if (players[2] != undefined) ctx.fillText('#3 '+players[2].nickname+': '+players[2].qtdEssences, players[i].x+20, players[i].y+70);
+
   }
 
   //restore context

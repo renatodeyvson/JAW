@@ -21,6 +21,9 @@ http.listen(port, function(){
 *                                  globals                                    *
 ******************************************************************************/
 
+//map
+var mapSize = 1000;
+
 //players
 var ids = [],
     players = [],
@@ -28,7 +31,7 @@ var ids = [],
 
 //essences
 var essences = [],
-    qtdEssences = 1000;
+    qtdEssences = 500;
 
 //stones
 var stones = [],
@@ -48,18 +51,18 @@ var key = [];
 //essences
 for (var i=0; i<qtdEssences; ++i){
   essences[i] = {
-    x: getRandomInt(-4000, 4000),
-    y: getRandomInt(-4000, 4000),
-    width: 100,
-    height: 100
+    x: getRandomInt(-mapSize, mapSize),
+    y: getRandomInt(-mapSize, mapSize),
+    width: 10,
+    height: 10
   }
 }
 
 //stones
 for (var i=0; i<qtdStones; ++i){
   stones[i] = {
-    x: getRandomInt(-4000, 4000),
-    y: getRandomInt(-4000, 4000),
+    x: getRandomInt(-mapSize, mapSize),
+    y: getRandomInt(-mapSize, mapSize),
     width: 50,
     height: 50,
     velocity: 10,
@@ -168,48 +171,48 @@ function loop(){
   inputs();
   animateStones();
 
-  //collision between player and essence
   for (var i=0; i<qtdPlayers; ++i){
+
+    //collision between player and essence
     for (var j=0; j<qtdEssences;++j){
       if (checkCollision(players[i], essences[j])){
         players[i].qtdEssences += 1;
-        essences[j].x = getRandomInt(-4000, 4000);
-        essences[j].y = getRandomInt(-4000, 4000);
+        essences[j].x = getRandomInt(-mapSize, mapSize);
+        essences[j].y = getRandomInt(-mapSize, mapSize);
       }
     }
-  }
 
-  //collision between player and stone (pick)
-  for (var i=0; i<qtdPlayers; ++i){
-      for (var j=0; j<qtdStones;++j){
-       if (checkCollision(players[i], stones[j]) && players[i].stone < 0 && stones[j].onGround){
+    for (var j=0; j<qtdStones;++j){
+
+      //collision between player and stone (pick)
+      if (checkCollision(players[i], stones[j]) && players[i].stone < 0 && stones[j].onGround){
          players[i].stone = j;
          stones[j].onGround = false;
          stones[j].x = players[i].x;
          stones[j].y = players[i].y;
        }
-      }
-  }
 
-  //collision between player and stone (shoot)
-  for (var i=0; i<qtdPlayers; ++i){
-    for (var j=0; j<qtdStones;++j){
-      if (checkCollision(players[i], stones[j]) && !stones[j].onGround && players[i].stone != j){
+       //collision between player and stone (shoot)
+       if (checkCollision(players[i], stones[j]) && !stones[j].onGround && players[i].stone != j){
         if (players[i].stone > -1) stones[players[i].stone].onGround = true;
         players[i] = {
-          socket: players[i].socket,
-          nickname: players[i].nickname,
-          x: 0,
-          y: 0,
-          width: players[i].width,
-          height: players[i].height,
-          velocity: players[i].velocity,
-          qtdEssences: 0,
-          stone: -1
+            socket: players[i].socket,
+            nickname: players[i].nickname,
+            x: 0,
+           y: 0,
+            width: players[i].width,
+            height: players[i].height,
+           velocity: players[i].velocity,
+           qtdEssences: 0,
+           stone: -1
+          }
         }
-      }
+
     }
+
   }
+
+  
 
   io.emit('att', {
     players: players,
@@ -234,28 +237,28 @@ function inputs(){
   for (var i=0; i<qtdPlayers; ++i){
     //a
     if (key[i][65]){
-      if (players[i].x - players[i].velocity > -4000){
+      if (players[i].x - players[i].velocity > -mapSize){
         players[i].x -= players[i].velocity;
         if (players[i].stone > -1) stones[players[i].stone].x -= players[i].velocity;
       }
     }
     //d
     if (key[i][68]){
-      if (players[i].x + players[i].velocity < 4000){
+      if (players[i].x + players[i].velocity < mapSize){
         players[i].x += players[i].velocity;
         if (players[i].stone > -1) stones[players[i].stone].x += players[i].velocity;
       }
     }
     //s
     if (key[i][83]){
-      if (players[i].y - players[i].velocity < 4000){
+      if (players[i].y - players[i].velocity < mapSize){
         players[i].y += players[i].velocity;
         if (players[i].stone > -1) stones[players[i].stone].y += players[i].velocity;
       }
     }
     //w
     if (key[i][87]){
-      if (players[i].y - players[i].velocity > -4000){
+      if (players[i].y - players[i].velocity > -mapSize){
         players[i].y -= players[i].velocity;
         if (players[i].stone > -1) stones[players[i].stone].y -= players[i].velocity;
       }
