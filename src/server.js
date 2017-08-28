@@ -31,7 +31,7 @@ var ids = [],
 
 //essences
 var essences = [],
-    qtdEssences = 500;
+    qtdEssences = 100;
 
 //stones
 var stones = [],
@@ -91,8 +91,8 @@ io.on('connection', function(socket){
     nickname: 'anonymous',
     x: 0,
     y: 0,
-    width: 50,
-    height: 75,
+    width: 48,
+    height: 72,
     velocity: 5,
     qtdEssences: 0,
     stone: -1
@@ -244,14 +244,14 @@ function inputs(){
     }
     //d
     if (key[i][68]){
-      if (players[i].x + players[i].velocity < mapSize){
+      if (players[i].x + players[i].velocity + players[i].width < mapSize){
         players[i].x += players[i].velocity;
         if (players[i].stone > -1) stones[players[i].stone].x += players[i].velocity;
       }
     }
     //s
     if (key[i][83]){
-      if (players[i].y - players[i].velocity < mapSize){
+      if (players[i].y - players[i].velocity + players[i].height < mapSize){
         players[i].y += players[i].velocity;
         if (players[i].stone > -1) stones[players[i].stone].y += players[i].velocity;
       }

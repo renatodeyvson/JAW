@@ -1,5 +1,9 @@
 //globals
-var id;
+var id,
+    myScore = 0,
+    topScore1 = '',
+    topScore2 = '',
+    topScore3 = '';
 
 //socket.io
 socket.on('id', function(params){
@@ -15,9 +19,6 @@ socket.on('att', function(params){
       stones = params.stones,
       qtdStones = params.qtdStones;
 
-  //clear screen
-  ctx.clearRect(0, 0, 960, 560);
-
   //translate context
   for (var i=0; i<qtdPlayers; ++i){
     if (players[i].socket == id){
@@ -27,44 +28,48 @@ socket.on('att', function(params){
     }
   }
 
+  //print world (test)
+  var world_img = new Image();
+  world_img.src = '../img/world/map.png';
+  ctx.drawImage(world_img, -1500, -1500);
+
   //print players (test)
   for (var i=0; i<qtdPlayers; ++i){
-    ctx.fillStyle = 'blue';
-    ctx.fillRect(players[i].x, players[i].y, players[i].width, players[i].height);
-    ctx.fillStyle = 'green';
+    var l_img = new Image();
+    l_img.src = '../img/char/l.png';
+    ctx.drawImage(l_img, players[i].x, players[i].y);
+    ctx.fillStyle = 'black';
     ctx.fillText(players[i].nickname, players[i].x, players[i].y-5);
   }
 
   //print essences (test)
   for (var i=0; i<qtdEssences; ++i){
-    ctx.fillStyle = 'yellow';
-    ctx.fillRect(essences[i].x, essences[i].y, essences[i].width, essences[i].height);
+    var essence_img = new Image();
+    essence_img.src = '../img/essence/thing.png';
+    ctx.drawImage(essence_img, essences[i].x, essences[i].y);
   }
 
   //print stone (test)
   for (var j=0; j<qtdStones; ++j){
-    ctx.fillStyle = "red";
-    ctx.fillRect(stones[j].x, stones[j].y, stones[j].width, stones[j].height);
+    var stone_img = new Image();
+    stone_img.src = '../img/stone/rock.png';
+    ctx.drawImage(stone_img, stones[j].x, stones[j].y);
   }
 
-  //print score (test)
+  //score (test)
   for (var i=0; i<qtdPlayers; ++i){
 
-    ctx.fillStyle = 'black';
-
     //personal score
-    if (players[i].socket == id){
-      ctx.fillText(players[i].qtdEssences, players[i].x+20, players[i].y+30);
-    }
+    if (players[i].socket == id) myScore = players[i].qtdEssences;
 
     //global score
     players.sort(function(a, b){
       return b.qtdEssences - a.qtdEssences;
     });
     
-    if (players[0] != undefined) ctx.fillText('#1 '+players[0].nickname+': '+players[0].qtdEssences, players[i].x+20, players[i].y+50);
-    if (players[1] != undefined) ctx.fillText('#2 '+players[1].nickname+': '+players[1].qtdEssences, players[i].x+20, players[i].y+60);
-    if (players[2] != undefined) ctx.fillText('#3 '+players[2].nickname+': '+players[2].qtdEssences, players[i].x+20, players[i].y+70);
+    if (players[0] != undefined) topScore1 = '#1 '+players[0].nickname+': '+players[0].qtdEssences;
+    if (players[1] != undefined) topScore2 = '#2 '+players[1].nickname+': '+players[1].qtdEssences;
+    if (players[2] != undefined) topScore3 = '#3 '+players[2].nickname+': '+players[2].qtdEssences;
 
   }
 
@@ -74,5 +79,6 @@ socket.on('att', function(params){
   //prompt
   inputs();
   attChat();
+  score();
 
 });
