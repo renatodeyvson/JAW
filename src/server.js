@@ -98,9 +98,6 @@ io.on('connection', function(socket){
     stone: -1
   };
 
-  //send player id
-  socket.emit('id', socket.id);
-
   //put log
   chatPut('[*] user \''+players[qtdPlayers].nickname+'\' connected', 'green');
 
@@ -108,6 +105,17 @@ io.on('connection', function(socket){
 
   //send chat history
   chatSend();
+
+  //send player id and atual state
+  socket.emit('start', {
+    id: socket.id,
+    players: players,
+    qtdPlayers: qtdPlayers,
+    essences: essences,
+    qtdEssences: qtdEssences,
+    stones: stones,
+    qtdStones: qtdStones
+  });
 
   //input down
   socket.on('keydown', function(msg){
@@ -165,6 +173,7 @@ io.on('connection', function(socket){
     //send chat history
     chatSend();
 
+    playersSend();
   });
 
 });
@@ -182,6 +191,9 @@ function loop(){
         players[i].qtdEssences += 1;
         essences[j].x = getRandomInt(-mapSize, mapSize);
         essences[j].y = getRandomInt(-mapSize, mapSize);
+
+        playersSend();
+        essencesSend();
       }
     }
 
@@ -193,38 +205,36 @@ function loop(){
          stones[j].onGround = false;
          stones[j].x = players[i].x;
          stones[j].y = players[i].y;
+
+         playersSend();
+         stonesSend();
        }
 
        //collision between player and stone (shoot)
-       if (checkCollision(players[i], stones[j]) && !stones[j].onGround && players[i].stone != j){
-        if (players[i].stone > -1) stones[players[i].stone].onGround = true;
+      if (checkCollision(players[i], stones[j]) && !stones[j].onGround && players[i].stone != j){
+        if (players[i].stone > -1){
+          stones[players[i].stone].onGround = true;
+
+          stonesSend();
+        } 
         players[i] = {
-            socket: players[i].socket,
-            nickname: players[i].nickname,
-            x: 0,
-           y: 0,
-            width: players[i].width,
-            height: players[i].height,
-           velocity: players[i].velocity,
-           qtdEssences: 0,
-           stone: -1
-          }
+          socket: players[i].socket,
+          nickname: players[i].nickname,
+          x: 0,
+          y: 0,
+          width: players[i].width,
+          height: players[i].height,
+          velocity: players[i].velocity,
+          qtdEssences: 0,
+          stone: -1
         }
+
+        playersSend();
+      }
 
     }
 
   }
-
-  
-
-  io.emit('att', {
-    players: players,
-    qtdPlayers: qtdPlayers,
-    essences: essences,
-    qtdEssences: qtdEssences,
-    stones: stones,
-    qtdStones: qtdStones
-  });
 }
 
 //infinit loop
@@ -242,28 +252,52 @@ function inputs(){
     if (key[i][65]){
       if (players[i].x - players[i].velocity > -mapSize){
         players[i].x -= players[i].velocity;
-        if (players[i].stone > -1) stones[players[i].stone].x -= players[i].velocity;
+
+        playersSend();
+        if (players[i].stone > -1){
+          stones[players[i].stone].x -= players[i].velocity;
+
+          stonesSend();
+        }
       }
     }
     //d
     if (key[i][68]){
       if (players[i].x + players[i].velocity + players[i].width < mapSize){
         players[i].x += players[i].velocity;
-        if (players[i].stone > -1) stones[players[i].stone].x += players[i].velocity;
+
+        playersSend();
+        if (players[i].stone > -1){
+          stones[players[i].stone].x += players[i].velocity;
+
+          stonesSend();
+        }
       }
     }
     //s
     if (key[i][83]){
       if (players[i].y - players[i].velocity + players[i].height < mapSize){
         players[i].y += players[i].velocity;
-        if (players[i].stone > -1) stones[players[i].stone].y += players[i].velocity;
+
+        playersSend();
+        if (players[i].stone > -1){
+          stones[players[i].stone].y += players[i].velocity;
+
+          stonesSend();
+        }
       }
     }
     //w
     if (key[i][87]){
       if (players[i].y - players[i].velocity > -mapSize){
         players[i].y -= players[i].velocity;
-        if (players[i].stone > -1) stones[players[i].stone].y -= players[i].velocity;
+
+        playersSend();
+        if (players[i].stone > -1){
+          stones[players[i].stone].y -= players[i].velocity;
+
+          stonesSend();
+        }
       }
     }
     //i
@@ -309,6 +343,44 @@ function chatSend(){
   io.emit('chat listen', { msg: chatHis, color: chatHisColor});
 }
 
+//send players
+function playersSend(){
+  io.emit('players listen', { qtdPlayers: qtdPlayers, players: players.map(function(a){
+    var b = {};
+    b.socket = a.socket;
+    b.nickname = a.nickname;
+    b.x = a.x;
+    b.y = a.y;
+    b.qtdEssences = a.qtdEssences;
+    b.stone = a.stone;
+    return b;
+  })});
+  //io.emit('players listen', { qtdPlayers: qtdPlayers, players: players });
+}
+
+//send stones
+function stonesSend(){
+  io.emit('stones listen', { qtdStones: qtdStones, stones: stones.map(function(a){
+    var b = {};
+    b.x = a.x;
+    b.y = a.y;
+    b.onGround = a.onGround;
+    return b;
+  })});
+  //io.emit('stones listen', { qtdStones: qtdStones, stones: stones });
+}
+
+//send essences
+function essencesSend(){
+  io.emit('essences listen', { qtdEssences: qtdEssences, essences: essences.map(function(a) {
+    var b = {};
+    b.x = a.x;
+    b.y = a.y;
+    return b;
+  })});
+  //io.emit('essences listen', { qtdEssences: qtdEssences, essences: essences });
+}
+
 //random number between min and max
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -326,7 +398,7 @@ function checkCollision(obj1, obj2){
   return false;
 }
 
-//throw animation of the stones
+//execute the animation of the stones
 function animateStones(){
   for (var j=0; j<qtdStones; ++j){
 
@@ -336,6 +408,8 @@ function animateStones(){
       if (stones[j].rangeUp <= 0){
         resetStone(j);
       }
+
+      stonesSend();
     }
     else if (stones[j].rangeDown > 0){
       stones[j].y += stones[j].velocity;
@@ -343,6 +417,8 @@ function animateStones(){
       if (stones[j].rangeDown <= 0){
         resetStone(j);
       }
+
+      stonesSend();
     }
     else if (stones[j].rangeLeft > 0){
       stones[j].x -= stones[j].velocity;
@@ -350,6 +426,8 @@ function animateStones(){
       if (stones[j].rangeLeft <= 0){
         resetStone(j);
       }
+
+      stonesSend();
     }
     else if (stones[j].rangeRigth > 0){
       stones[j].x += stones[j].velocity;
@@ -357,18 +435,21 @@ function animateStones(){
       if (stones[j].rangeRigth <= 0){
         resetStone(j);
       }
+
+      stonesSend();
     }
 
   }
 }
 
-//
+//set the stone state to default
 function resetStone(stone){
   stones[stone].onGround = true;
   if (stones[stone].x < -mapSize || stones[stone].y < -mapSize || stones[stone].x > mapSize || stones[stone].y > mapSize){
     stones[stone].x = getRandomInt(-mapSize, mapSize);
     stones[stone].y = getRandomInt(-mapSize, mapSize);
   }
+  stonesSend();
 }
 
 //set the stone state to shoot
@@ -393,4 +474,7 @@ function shoot(player, direction){
   }
 
   players[player].stone = -1;
+
+  stonesSend();
+  playersSend();
 }

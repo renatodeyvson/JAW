@@ -24,17 +24,6 @@ function attChat(){
   ctx.fillText('> '+command, 2, 550);
 }
 
-function score(){
-  //print global score
-  ctx.fillStyle = 'black';
-  ctx.fillText(topScore1, 20, 50);
-  ctx.fillText(topScore2, 20, 60);
-  ctx.fillText(topScore3, 20, 70);
-
-  //print personal score
-  ctx.fillText(myScore, 20, 30);
-}
-
 //inputs
 function inputs(){
 
