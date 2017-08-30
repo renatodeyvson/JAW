@@ -149,6 +149,9 @@ io.on('connection', function(socket){
 
     var id = ids[socket.id];
 
+    //reset stone
+    if (players[id].stone > -1) resetStone(players[id].stone);
+
     //the current player will be the reference of the last player connected
     ids[players[qtdPlayers-1].socket] = id;
     players[id] = players[qtdPlayers-1];
