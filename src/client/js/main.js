@@ -81,7 +81,7 @@ socket.on('essences listen', function(params){
 });
 
 /******************************************************************************
-*                                   Aux                                       *
+*                                   setup                                     *
 ******************************************************************************/
 
 //config animation frame
@@ -95,6 +95,10 @@ window.requestAnimFrame = (function() {
             };
 })();
 
+/******************************************************************************
+*                                   Aux                                       *
+******************************************************************************/
+
 //render the game on screen
 function render(){
 
@@ -105,11 +109,10 @@ function render(){
   printEssences();
   printStones();
 
-  calculateScore();
-
   cameraFollowStop();
 
   inputs();
+  calculateScore();
   printScore();
   attChat();
 
@@ -126,8 +129,11 @@ function printWorld(){
 function printPlayers(){
   for (var i=0; i<qtdPlayers; ++i){
     ctx.drawImage(l_img, players[i].x, players[i].y);
-    ctx.fillStyle = 'black';
-    ctx.fillText(players[i].nickname, players[i].x, players[i].y-5);
+    ctx.fillStyle = 'blue';
+    ctx.font = 'bold 15px Courier';
+    var nickX = players[i].x+(players[i].width/2)-(ctx.measureText(players[i].nickname).width/2),
+        nickY = players[i].y-5;
+    ctx.fillText(players[i].nickname, nickX, nickY);
   }
 }
 
@@ -168,7 +174,7 @@ function calculateScore(){
     players.sort(function(a, b){
       return b.qtdEssences - a.qtdEssences;
     });
-    
+
     if (players[0] != undefined) topScore1 = '#1 '+players[0].nickname+': '+players[0].qtdEssences;
     if (players[1] != undefined) topScore2 = '#2 '+players[1].nickname+': '+players[1].qtdEssences;
     if (players[2] != undefined) topScore3 = '#3 '+players[2].nickname+': '+players[2].qtdEssences;
