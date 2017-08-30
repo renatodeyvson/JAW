@@ -35,7 +35,7 @@ var essences = [],
 
 //stones
 var stones = [],
-    qtdStones = 100;
+    qtdStones = 30;
 
 //chat
 var chatHis = [ '', '', '', ''],
@@ -325,34 +325,34 @@ function checkCollision(obj1, obj2){
 
 //throw animation of the stones
 function animateStones(){
-  for (var i=0; i<qtdStones; ++i){
+  for (var j=0; j<qtdStones; ++j){
 
-    if (stones[i].rangeUp > 0){
-      stones[i].y -= stones[i].velocity;
-      stones[i].rangeUp -= stones[i].velocity;
-      if (stones[i].rangeUp <= 0){
-        resetStone(i);
+    if (stones[j].rangeUp > 0){
+      stones[j].y -= stones[j].velocity;
+      stones[j].rangeUp -= stones[j].velocity;
+      if (stones[j].rangeUp <= 0){
+        resetStone(j);
       }
     }
-    else if (stones[i].rangeDown > 0){
-      stones[i].y += stones[i].velocity;
-      stones[i].rangeDown -= stones[i].velocity;
-      if (stones[i].rangeDown <= 0){
-        resetStone(i);
+    else if (stones[j].rangeDown > 0){
+      stones[j].y += stones[j].velocity;
+      stones[j].rangeDown -= stones[j].velocity;
+      if (stones[j].rangeDown <= 0){
+        resetStone(j);
       }
     }
-    else if (stones[i].rangeLeft > 0){
-      stones[i].x -= stones[i].velocity;
-      stones[i].rangeLeft -= stones[i].velocity;
-      if (stones[i].rangeLeft <= 0){
-        resetStone(i);
+    else if (stones[j].rangeLeft > 0){
+      stones[j].x -= stones[j].velocity;
+      stones[j].rangeLeft -= stones[j].velocity;
+      if (stones[j].rangeLeft <= 0){
+        resetStone(j);
       }
     }
-    else if (stones[i].rangeRigth > 0){
-      stones[i].x += stones[i].velocity;
-      stones[i].rangeRigth -= stones[i].velocity;
-      if (stones[i].rangeRigth <= 0){
-        resetStone(i);
+    else if (stones[j].rangeRigth > 0){
+      stones[j].x += stones[j].velocity;
+      stones[j].rangeRigth -= stones[j].velocity;
+      if (stones[j].rangeRigth <= 0){
+        resetStone(j);
       }
     }
 
@@ -362,6 +362,10 @@ function animateStones(){
 //
 function resetStone(stone){
   stones[stone].onGround = true;
+  if (stones[stone].x < -mapSize || stones[stone].y < -mapSize || stones[stone].x > mapSize || stones[stone].y > mapSize){
+    stones[stone].x = getRandomInt(-mapSize, mapSize);
+    stones[stone].y = getRandomInt(-mapSize, mapSize);
+  }
 }
 
 //set the stone state to shoot
