@@ -3,6 +3,9 @@ var canvas = document.getElementById('canvasid'),
     ctx = canvas.getContext('2d'),
     socket = io();
 
+//config
+ctx.font = 'bold 15px Courier';
+
 //globals
 var prompt = false;
     key = [];

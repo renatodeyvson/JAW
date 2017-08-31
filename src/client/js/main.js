@@ -112,6 +112,7 @@ function render(){
   cameraFollowStop();
 
   inputs();
+  printQtdPlayers();
   calculateScore();
   printScore();
   attChat();
@@ -128,12 +129,13 @@ function printWorld(){
 //show the players on map
 function printPlayers(){
   for (var i=0; i<qtdPlayers; ++i){
-    ctx.drawImage(l_img, players[i].x, players[i].y);
-    ctx.fillStyle = 'blue';
-    ctx.font = 'bold 15px Courier';
-    var nickX = players[i].x+(players[i].width/2)-(ctx.measureText(players[i].nickname).width/2),
-        nickY = players[i].y-5;
-    ctx.fillText(players[i].nickname, nickX, nickY);
+    if (players[i] != undefined){
+      ctx.drawImage(l_img, players[i].x, players[i].y);
+      ctx.fillStyle = 'blue';
+      var nickX = players[i].x+(players[i].width/2)-(ctx.measureText(players[i].nickname).width/2),
+          nickY = players[i].y-5;
+      ctx.fillText(players[i].nickname, nickX, nickY);
+    }
   }
 }
 
@@ -151,16 +153,21 @@ function printEssences(){
   }
 }
 
+//show qtd of players on screen
+function printQtdPlayers(){
+  ctx.fillText('online: '+qtdPlayers, 830, 30);
+}
+
 //show the score on screen
 function printScore(){
-  //global score
-  ctx.fillStyle = 'black';
-  ctx.fillText(topScore1, 20, 50);
-  ctx.fillText(topScore2, 20, 60);
-  ctx.fillText(topScore3, 20, 70);
-
   //personal score
-  ctx.fillText(myScore, 20, 30);
+  ctx.fillStyle = 'black';
+  ctx.fillText(myScore, 830, 535);
+
+  //global score
+  ctx.fillText(topScore1, 20, 30);
+  ctx.fillText(topScore2, 20, 45);
+  ctx.fillText(topScore3, 20, 60);
 }
 
 //calculate the personal and global score
@@ -168,7 +175,7 @@ function calculateScore(){
   for (var i=0; i<qtdPlayers; ++i){
 
     //personal score
-    if (players[i].socket == id) myScore = players[i].qtdEssences;
+    if (players[i] != undefined && players[i].socket == id) myScore = 'essences: '+players[i].qtdEssences;
 
     //global score
     players.sort(function(a, b){
@@ -185,7 +192,7 @@ function calculateScore(){
 //translate camera
 function cameraFollowStart(){
   for (var i=0; i<qtdPlayers; ++i){
-    if (players[i].socket == id){
+    if (players[i] != undefined && players[i].socket == id){
       ctx.save();
       ctx.translate(-players[i].x + 480 - (players[i].width/2),
                       -players[i].y + 280 - (players[i].height/2));

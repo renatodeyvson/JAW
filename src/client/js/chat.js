@@ -12,16 +12,16 @@ socket.on('chat listen', function(params){
 //prompt
 function attChat(){
   ctx.fillStyle = chatHisColor[0];
-  ctx.fillText(chatHis[0], 10, 470);
+  ctx.fillText(chatHis[0], 20, 470);
   ctx.fillStyle = chatHisColor[1];
-  ctx.fillText(chatHis[1], 10, 490);
+  ctx.fillText(chatHis[1], 20, 490);
   ctx.fillStyle = chatHisColor[2];
-  ctx.fillText(chatHis[2], 10, 510);
+  ctx.fillText(chatHis[2], 20, 510);
   ctx.fillStyle = chatHisColor[3];
-  ctx.fillText(chatHis[3], 10, 530);
+  ctx.fillText(chatHis[3], 20, 530);
   if (prompt) ctx.fillStyle = 'blue';
   else ctx.fillStyle = 'black';
-  ctx.fillText('> '+command, 2, 550);
+  ctx.fillText('> '+command, 5, 550);
 }
 
 //inputs
@@ -57,15 +57,10 @@ function inputs(){
       addCommand(32);
 
       //'?'
-      if (key[18] && key [87]){
+      if (key[18] && key[87] || key[16] && key[193]){
         command = command+'?';
         key[87] = false;
-      }
-
-      //'\'
-      if (key[226]){
-        command = command+'\\';
-        key[226] = false;
+        key[193] = false;
       }
     }
 

@@ -22,7 +22,8 @@ http.listen(port, function(){
 ******************************************************************************/
 
 //map
-var mapSize = 1000;
+var mapSize = 1000,
+    safeSize = 100;
 
 //players
 var ids = [],
@@ -99,7 +100,7 @@ io.on('connection', function(socket){
   };
 
   //put log
-  chatPut('[*] user \''+players[qtdPlayers].nickname+'\' connected', 'green');
+  chatPut('['+players[qtdPlayers].nickname+'] connected', 'green');
 
   ++qtdPlayers;
 
@@ -134,13 +135,13 @@ io.on('connection', function(socket){
 
     var id = ids[socket.id];
 
-    //\command
-    if (msg.substring(0, 1) == '\\'){
+    //?command
+    if (msg.substring(0, 1) == '?'){
 
       //nickname config
-      if(msg.substring(1, 5) == 'nick' && msg.substring(6, msg.length) != ''){
-        players[id].nickname = msg.substring(6, 26);
-        chatPut('[*] user \''+players[id].nickname+'\' connected', 'green');
+      if(msg.substring(1, msg.length) != ''){
+        players[id].nickname = msg.substring(1, 16);
+        chatPut('['+players[id].nickname+'] connected', 'green');
       }
 
     }
@@ -168,7 +169,7 @@ io.on('connection', function(socket){
     --qtdPlayers;
 
     //put log
-    chatPut('[*] user \''+players[id].nickname+'\' disconnected', 'red');
+    chatPut('['+players[id].nickname+'] disconnected', 'red');
 
     //send chat history
     chatSend();
@@ -211,12 +212,15 @@ function loop(){
        }
 
        //collision between player and stone (shoot)
-      if (checkCollision(players[i], stones[j]) && !stones[j].onGround && players[i].stone != j){
+      if (checkCollision(players[i], stones[j]) && !stones[j].onGround
+        && players[i].stone != j && (players[i].x > safeSize || players[i].y > safeSize
+        || players[i].x+players[i].width < -safeSize || players[i].y+players[i].height < -safeSize)){
+
         if (players[i].stone > -1){
           stones[players[i].stone].onGround = true;
 
           stonesSend();
-        } 
+        }
         players[i] = {
           socket: players[i].socket,
           nickname: players[i].nickname,
