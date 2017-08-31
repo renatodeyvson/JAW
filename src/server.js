@@ -71,7 +71,8 @@ for (var i=0; i<qtdStones; ++i){
     rangeUp: 0,
     rangeDown: 0,
     rangeLeft: 0,
-    rangeRigth: 0
+    rangeRigth: 0,
+    owner: -1,
   }
 }
 
@@ -96,6 +97,8 @@ io.on('connection', function(socket){
     height: 72,
     velocity: 5,
     qtdEssences: 0,
+    kills: 0,
+    deaths: 0,
     stone: -1
   };
 
@@ -204,6 +207,7 @@ function loop(){
       if (checkCollision(players[i], stones[j]) && players[i].stone < 0 && stones[j].onGround){
          players[i].stone = j;
          stones[j].onGround = false;
+         stones[j].owner = i;
          stones[j].x = players[i].x;
          stones[j].y = players[i].y;
 
@@ -221,6 +225,7 @@ function loop(){
 
           stonesSend();
         }
+        players[stones[j].owner].kills += 1;
         players[i] = {
           socket: players[i].socket,
           nickname: players[i].nickname,
@@ -230,6 +235,8 @@ function loop(){
           height: players[i].height,
           velocity: players[i].velocity,
           qtdEssences: 0,
+          kills: players[i].kills,
+          deaths: players[i].deaths+1,
           stone: -1
         }
 
@@ -357,6 +364,8 @@ function playersSend(){
     b.y = a.y;
     b.qtdEssences = a.qtdEssences;
     b.stone = a.stone;
+    b.kills = a.kills;
+    b.deaths = a.deaths;
     return b;
   })});
   //io.emit('players listen', { qtdPlayers: qtdPlayers, players: players });
@@ -369,6 +378,7 @@ function stonesSend(){
     b.x = a.x;
     b.y = a.y;
     b.onGround = a.onGround;
+    b.owner = a.owner;
     return b;
   })});
   //io.emit('stones listen', { qtdStones: qtdStones, stones: stones });
@@ -449,6 +459,7 @@ function animateStones(){
 //set the stone state to default
 function resetStone(stone){
   stones[stone].onGround = true;
+  stones[stone].owner = -1;
   if (stones[stone].x < -mapSize || stones[stone].y < -mapSize || stones[stone].x > mapSize || stones[stone].y > mapSize){
     stones[stone].x = getRandomInt(-mapSize, mapSize);
     stones[stone].y = getRandomInt(-mapSize, mapSize);

@@ -11,6 +11,8 @@ var id = '',
     stones = [],
     qtdStones = 0,
     myScore = 0,
+    myKills = 0,
+    myDeaths = 0,
     topScore1 = '',
     topScore2 = '',
     topScore3 = '';
@@ -53,6 +55,8 @@ socket.on('players listen', function(params){
     b.y = a[i].y;
     b.qtdEssences = a[i].qtdEssences;
     b.stone = a[i].stone;
+    b.kills = a[i].kills;
+    b.deaths = a[i].deaths;
     return b;
   })
 });
@@ -65,6 +69,7 @@ socket.on('stones listen', function(params){
     b.x = a[i].x;
     b.y = a[i].y;
     b.onGround = a[i].onGround;
+    b.owner = a[i].owner;
     return b;
   });
 });
@@ -162,7 +167,9 @@ function printQtdPlayers(){
 function printScore(){
   //personal score
   ctx.fillStyle = 'black';
-  ctx.fillText(myScore, 830, 535);
+  ctx.fillText(myScore, 830, 505);
+  ctx.fillText(myKills, 830, 520);
+  ctx.fillText(myDeaths, 830, 535);
 
   //global score
   ctx.fillText(topScore1, 20, 30);
@@ -175,16 +182,20 @@ function calculateScore(){
   for (var i=0; i<qtdPlayers; ++i){
 
     //personal score
-    if (players[i] != undefined && players[i].socket == id) myScore = 'essences: '+players[i].qtdEssences;
+    if (players[i] != undefined && players[i].socket == id){
+      myScore = 'essences: '+players[i].qtdEssences;
+      myKills = 'kills: '+players[i].kills;
+      myDeaths = 'deaths: '+players[i].deaths;
+    }
 
     //global score
     players.sort(function(a, b){
-      return b.qtdEssences - a.qtdEssences;
+      return b.kills - a.kills;
     });
 
-    if (players[0] != undefined) topScore1 = '#1 '+players[0].nickname+': '+players[0].qtdEssences;
-    if (players[1] != undefined) topScore2 = '#2 '+players[1].nickname+': '+players[1].qtdEssences;
-    if (players[2] != undefined) topScore3 = '#3 '+players[2].nickname+': '+players[2].qtdEssences;
+    if (players[0] != undefined) topScore1 = '#1 '+players[0].nickname+': '+players[0].kills+' / '+players[0].deaths;
+    if (players[1] != undefined) topScore2 = '#2 '+players[1].nickname+': '+players[1].kills+' / '+players[1].deaths;
+    if (players[2] != undefined) topScore3 = '#3 '+players[2].nickname+': '+players[2].kills+' / '+players[2].deaths;
 
   }
 }
