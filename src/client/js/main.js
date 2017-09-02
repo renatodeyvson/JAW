@@ -25,7 +25,7 @@ var world_img = new Image(),
 
 world_img.src = '../img/world/map.png';
 l_img.src = '../img/char/l.png';
-stone_img.src = '../img/stone/rock.png';
+stone_img.src = '../img/stone/pumpkin.png';
 essence_img.src = '../img/essence/thing.png';
 
 /******************************************************************************
