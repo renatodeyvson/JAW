@@ -54,8 +54,8 @@ for (var i=0; i<qtdEssences; ++i){
   essences[i] = {
     x: getRandomInt(-mapSize, mapSize),
     y: getRandomInt(-mapSize, mapSize),
-    width: 10,
-    height: 10
+    width: 20,
+    height: 20
   }
 }
 

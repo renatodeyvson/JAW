@@ -19,12 +19,12 @@ var id = '',
 
 //images
 var world_img = new Image(),
-    l_img = new Image(),
+    char_img = new Image(),
     stone_img = new Image(),
     essence_img = new Image();
 
 world_img.src = '../img/world/map.png';
-l_img.src = '../img/char/l.png';
+char_img.src = '../img/char/l.png';
 stone_img.src = '../img/stone/pumpkin.png';
 essence_img.src = '../img/essence/thing.png';
 
@@ -40,6 +40,27 @@ socket.on('start', function(params){
   qtdEssences = params.qtdEssences;
   stones = params.stones;
   qtdStones = params.qtdStones;
+
+  for(var i=0; i<qtdPlayers; ++i){
+    players[i].frames = 1;
+    players[i].index = 0;
+    players[i].time = 0;
+    players[i].auxTime = 0;
+  }
+
+  for(var i=0; i<qtdEssences; ++i){
+    essences[i].frames = 3;
+    essences[i].index = getRandomInt(0, 3);
+    essences[i].time = 10;
+    essences[i].auxTime = 0;
+  }
+
+  for(var i=0; i<qtdStones; ++i){
+    stones[i].frames = 2;
+    stones[i].index = getRandomInt(0, 2);
+    stones[i].time = getRandomInt(10, 200);
+    stones[i].auxTime = 0;
+  }
 
   render();
 });
@@ -109,6 +130,7 @@ function render(){
 
   cameraFollowStart();
 
+  updateSprites();
   printWorld();
   printPlayers();
   printEssences();
@@ -134,12 +156,13 @@ function printWorld(){
 //show the players on map
 function printPlayers(){
   for (var i=0; i<qtdPlayers; ++i){
-    if (players[i] != undefined){
-      ctx.drawImage(l_img, players[i].x, players[i].y);
+    var p = players[i];
+    if (p != undefined){
+      ctx.drawImage(char_img, p.index*p.width, 0, p.width, p.height, p.x, p.y, p.width, p.height);
       ctx.fillStyle = 'blue';
-      var nickX = players[i].x+(players[i].width/2)-(ctx.measureText(players[i].nickname).width/2),
-          nickY = players[i].y-5;
-      ctx.fillText(players[i].nickname, nickX, nickY);
+      var nickX = p.x+(p.width/2)-(ctx.measureText(p.nickname).width/2),
+          nickY = p.y-5;
+      ctx.fillText(p.nickname, nickX, nickY);
     }
   }
 }
@@ -147,14 +170,16 @@ function printPlayers(){
 //show the stones on map
 function printStones(){
   for (var j=0; j<qtdStones; ++j){
-    ctx.drawImage(stone_img, stones[j].x, stones[j].y);
+    var s = stones[j];
+    ctx.drawImage(stone_img, s.index*s.width, 0, s.width, s.height, s.x, s.y, s.width, s.height);
   }
 }
 
 //show the essences on map
 function printEssences(){
   for (var i=0; i<qtdEssences; ++i){
-    ctx.drawImage(essence_img, essences[i].x, essences[i].y);
+    var e = essences[i];
+    ctx.drawImage(essence_img, e.index*e.width, 0, e.width, e.height, e.x, e.y, e.width, e.height);
   }
 }
 
@@ -212,4 +237,41 @@ function cameraFollowStart(){
 }
 function cameraFollowStop(){
   ctx.restore();
+}
+
+//Sprite Sheet
+function updateSprites(){
+  for(var i=0; i<qtdPlayers; ++i){
+    players[i] = updateSprite(players[i]);
+  }
+
+  for(var i=0; i<qtdEssences; ++i){
+    essences[i] = updateSprite(essences[i]);
+  }
+
+  for(var i=0; i<qtdStones; ++i){
+    stones[i] = updateSprite(stones[i]);
+  }
+}
+function updateSprite(obj){
+  obj.auxTime += 1;
+    
+  if (obj.auxTime > obj.time){
+    obj.auxTime = 0;
+
+    if (obj.index+1 < obj.frames){
+      obj.index += 1;
+    } else {
+      obj.index = 0;
+    }
+  }
+
+  return obj;
+}
+
+//random number between min and max
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
 }
