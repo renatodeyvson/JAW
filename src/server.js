@@ -91,8 +91,8 @@ io.on('connection', function(socket){
   players[qtdPlayers] = {
     socket: socket.id,
     nickname: 'anonymous',
-    x: 0,
-    y: 0,
+    x: -24,
+    y: -36,
     width: 48,
     height: 72,
     velocity: 5,
@@ -113,8 +113,8 @@ io.on('connection', function(socket){
   chatSend();
 
   //send player id and atual state
-  socket.emit('start', {
-    id: socket.id,
+  socket.emit('id', { id: socket.id });
+  io.emit('start', {
     players: players,
     qtdPlayers: qtdPlayers,
     essences: essences,
@@ -147,6 +147,7 @@ io.on('connection', function(socket){
       if(msg.substring(1, msg.length) != ''){
         players[id].nickname = msg.substring(1, 16);
         chatPut('['+players[id].nickname+'] connected', 'green');
+        playersSend();
       }
 
     }
@@ -231,15 +232,17 @@ function loop(){
         players[i] = {
           socket: players[i].socket,
           nickname: players[i].nickname,
-          x: 0,
-          y: 0,
+          x: -players[i].width/2,
+          y: -players[i].height/2,
           width: players[i].width,
           height: players[i].height,
           velocity: players[i].velocity,
           qtdEssences: 0,
           kills: players[i].kills,
           deaths: players[i].deaths+1,
-          stone: -1
+          stone: -1,
+          walking: false,
+          indexY: 0
         }
 
         playersSend();
@@ -320,7 +323,7 @@ function inputs(){
       }
     }
     //static
-    if (!key[i][65] && !key[i][68] && !key[i][83] && !key[i][87]) {
+    if (!key[i][65] && !key[i][68] && !key[i][83] && !key[i][87] && players[i].walking) {
       players[i].walking = false;
       playersSend();
     }

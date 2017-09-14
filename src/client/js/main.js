@@ -32,8 +32,11 @@ essence_img.src = '../img/essence/thing.png';
 *                                socket.io                                    *
 ******************************************************************************/
 
-socket.on('start', function(params){
+socket.on('id', function(params){
   id = params.id;
+});
+
+socket.on('start', function(params){
   players = params.players;
   qtdPlayers = params.qtdPlayers;
   essences = params.essences;
