@@ -42,10 +42,11 @@ socket.on('start', function(params){
   qtdStones = params.qtdStones;
 
   for(var i=0; i<qtdPlayers; ++i){
-    players[i].frames = 1;
+    players[i].frames = 4;
     players[i].index = 0;
-    players[i].time = 0;
+    players[i].time = 4;
     players[i].auxTime = 0;
+    players[i].indexY = 0;
   }
 
   for(var i=0; i<qtdEssences; ++i){
@@ -139,6 +140,7 @@ function render(){
   cameraFollowStop();
 
   inputs();
+  localInputs();
   printQtdPlayers();
   calculateScore();
   printScore();
@@ -158,7 +160,7 @@ function printPlayers(){
   for (var i=0; i<qtdPlayers; ++i){
     var p = players[i];
     if (p != undefined){
-      ctx.drawImage(char_img, p.index*p.width, 0, p.width, p.height, p.x, p.y, p.width, p.height);
+      ctx.drawImage(char_img, p.index*p.width, p.indexY*p.height, p.width, p.height, p.x, p.y, p.width, p.height);
       ctx.fillStyle = 'blue';
       var nickX = p.x+(p.width/2)-(ctx.measureText(p.nickname).width/2),
           nickY = p.y-5;
@@ -274,4 +276,20 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+//local inputs
+function localInputs(){
+  for(var i=0; i<qtdPlayers; ++i){
+    if (players[i] != undefined && players[i].socket == id){
+      //a
+      if (key[65]){
+        players[i].indexY = 1;
+      }
+      //d
+      if (key[68]){
+        players[i].indexY = 0;
+      }
+    }
+  }
 }
