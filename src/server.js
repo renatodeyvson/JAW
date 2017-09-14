@@ -99,7 +99,9 @@ io.on('connection', function(socket){
     qtdEssences: 0,
     kills: 0,
     deaths: 0,
-    stone: -1
+    stone: -1,
+    walking: false,
+    indexY: 0
   };
 
   //put log
@@ -263,7 +265,9 @@ function inputs(){
     if (key[i][65]){
       if (players[i].x - players[i].velocity > -mapSize){
         players[i].x -= players[i].velocity;
-
+        players[i].walking = true;
+        players[i].indexY = 1;
+        
         playersSend();
         if (players[i].stone > -1){
           stones[players[i].stone].x -= players[i].velocity;
@@ -276,6 +280,8 @@ function inputs(){
     if (key[i][68]){
       if (players[i].x + players[i].velocity + players[i].width < mapSize){
         players[i].x += players[i].velocity;
+        players[i].walking = true;
+        players[i].indexY = 0;
 
         playersSend();
         if (players[i].stone > -1){
@@ -289,6 +295,7 @@ function inputs(){
     if (key[i][83]){
       if (players[i].y - players[i].velocity + players[i].height < mapSize){
         players[i].y += players[i].velocity;
+        players[i].walking = true;
 
         playersSend();
         if (players[i].stone > -1){
@@ -302,6 +309,7 @@ function inputs(){
     if (key[i][87]){
       if (players[i].y - players[i].velocity > -mapSize){
         players[i].y -= players[i].velocity;
+        players[i].walking = true;
 
         playersSend();
         if (players[i].stone > -1){
@@ -310,6 +318,11 @@ function inputs(){
           stonesSend();
         }
       }
+    }
+    //static
+    if (!key[i][65] && !key[i][68] && !key[i][83] && !key[i][87]) {
+      players[i].walking = false;
+      playersSend();
     }
     //i
     if (key[i][73] && players[i].stone > -1){
@@ -366,6 +379,8 @@ function playersSend(){
     b.stone = a.stone;
     b.kills = a.kills;
     b.deaths = a.deaths;
+    b.walking = a.walking;
+    b.indexY = a.indexY;
     return b;
   })});
   //io.emit('players listen', { qtdPlayers: qtdPlayers, players: players });

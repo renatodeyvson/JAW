@@ -46,7 +46,6 @@ socket.on('start', function(params){
     players[i].index = 0;
     players[i].time = 4;
     players[i].auxTime = 0;
-    players[i].indexY = 0;
   }
 
   for(var i=0; i<qtdEssences; ++i){
@@ -79,6 +78,8 @@ socket.on('players listen', function(params){
     b.stone = a[i].stone;
     b.kills = a[i].kills;
     b.deaths = a[i].deaths;
+    b.walking = a[i].walking;
+    b.indexY = a[i].indexY;
     return b;
   })
 });
@@ -140,7 +141,6 @@ function render(){
   cameraFollowStop();
 
   inputs();
-  localInputs();
   printQtdPlayers();
   calculateScore();
   printScore();
@@ -244,7 +244,8 @@ function cameraFollowStop(){
 //Sprite Sheet
 function updateSprites(){
   for(var i=0; i<qtdPlayers; ++i){
-    players[i] = updateSprite(players[i]);
+    if(players[i] != undefined && players[i].walking) players[i] = updateSprite(players[i]);
+    else if(players[i] != undefined) players[i].index = 0;
   }
 
   for(var i=0; i<qtdEssences; ++i){
@@ -276,20 +277,4 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
-}
-
-//local inputs
-function localInputs(){
-  for(var i=0; i<qtdPlayers; ++i){
-    if (players[i] != undefined && players[i].socket == id){
-      //a
-      if (key[65]){
-        players[i].indexY = 1;
-      }
-      //d
-      if (key[68]){
-        players[i].indexY = 0;
-      }
-    }
-  }
 }
