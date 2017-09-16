@@ -64,6 +64,13 @@ function inputs(){
       }
     }
 
+  } else {
+    //n
+    if(key[78]){
+      key[78] = false;
+      prompt = true;
+      command = '?';
+    }
   }
 }
 
