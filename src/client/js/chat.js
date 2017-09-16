@@ -50,7 +50,7 @@ function inputs(){
     if(command.length < 50){
       //a~z
       for(var i=65; i<=90; ++i){
-        if (!key[18]) addCommand(i);
+        addCommand(i);
       }
 
       //space

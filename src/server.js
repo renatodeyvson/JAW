@@ -101,7 +101,8 @@ io.on('connection', function(socket){
     deaths: 0,
     stone: -1,
     walking: false,
-    indexY: 0
+    indexY: 0,
+    direction: 'RIGHT'
   };
 
   //put log
@@ -242,7 +243,8 @@ function loop(){
           deaths: players[i].deaths+1,
           stone: -1,
           walking: false,
-          indexY: 0
+          indexY: 0,
+          direction: 'RIGHT'
         }
 
         playersSend();
@@ -270,6 +272,7 @@ function inputs(){
         players[i].x -= players[i].velocity;
         players[i].walking = true;
         players[i].indexY = 1;
+        players[i].direction = 'LEFT';
         
         playersSend();
         if (players[i].stone > -1){
@@ -285,6 +288,7 @@ function inputs(){
         players[i].x += players[i].velocity;
         players[i].walking = true;
         players[i].indexY = 0;
+        players[i].direction = 'RIGHT';
 
         playersSend();
         if (players[i].stone > -1){
@@ -299,6 +303,7 @@ function inputs(){
       if (players[i].y - players[i].velocity + players[i].height < mapSize){
         players[i].y += players[i].velocity;
         players[i].walking = true;
+        players[i].direction = 'DOWN';
 
         playersSend();
         if (players[i].stone > -1){
@@ -313,6 +318,7 @@ function inputs(){
       if (players[i].y - players[i].velocity > -mapSize){
         players[i].y -= players[i].velocity;
         players[i].walking = true;
+        players[i].direction = 'UP';
 
         playersSend();
         if (players[i].stone > -1){
@@ -322,30 +328,31 @@ function inputs(){
         }
       }
     }
+    //w and d
+    if(key[i][87] && key[i][68]){
+      players[i].direction = 'UPRIGHT';
+    }
+    //w and a
+    if(key[i][87] && key[i][65]){
+      players[i].direction = 'UPLEFT';
+    }
+    //s and d
+    if(key[i][83] && key[i][68]){
+      players[i].direction = 'DOWNRIGHT';
+    }
+    //s and a
+    if(key[i][83] && key[i][65]){
+      players[i].direction = 'DOWNLEFT';
+    }
     //static
     if (!key[i][65] && !key[i][68] && !key[i][83] && !key[i][87] && players[i].walking) {
       players[i].walking = false;
       playersSend();
     }
-    //i
-    if (key[i][73] && players[i].stone > -1){
-      shoot(i, 'UP');
-      key[i][73] = false;
-    }
-    //j
-    if (key[i][74] && players[i].stone > -1){
-      shoot(i, 'LEFT');
-      key[i][74] = false;
-    }
-    //k
-    if (key[i][75] && players[i].stone > -1){
-      shoot(i, 'DOWN');
-      key[i][75] = false;
-    }
-    //l
-    if (key[i][76] && players[i].stone > -1){
-      shoot(i, 'RIGTH');
-      key[i][76] = false;
+    //p
+    if(key[i][80] && players[i].stone > -1){
+      shoot(i, players[i].direction);
+      key[i][80] = false;
     }
   }
 }
@@ -452,7 +459,7 @@ function animateStones(){
 
       stonesSend();
     }
-    else if (stones[j].rangeLeft > 0){
+    if (stones[j].rangeLeft > 0){
       stones[j].x -= stones[j].velocity;
       stones[j].rangeLeft -= stones[j].velocity;
       if (stones[j].rangeLeft <= 0){
@@ -489,21 +496,21 @@ function resetStone(stone){
 function shoot(player, direction){
   var stone = players[player].stone;
 
-  if (direction == 'UP'){
+  if (direction == 'UP' || direction == 'UPLEFT' || direction == 'UPRIGHT'){
      stones[stone].y -= stones[stone].height;
-     stones[stone].rangeUp = 300;
+     stones[stone].rangeUp = 200;
   }
-  else if (direction == 'LEFT'){
-    stones[stone].x -= stones[stone].height;
-    stones[stone].rangeLeft = 300;
-  }
-  else if (direction == 'DOWN'){
+  else if (direction == 'DOWN' || direction == 'DOWNLEFT' || direction == 'DOWNRIGHT'){
     stones[stone].y += players[player].height;
-    stones[stone].rangeDown = 300;
+    stones[stone].rangeDown = 200;
   }
-  else if (direction == 'RIGTH'){
+  if (direction == 'LEFT' || direction == 'UPLEFT' || direction == 'DOWNLEFT'){
+    stones[stone].x -= stones[stone].height;
+    stones[stone].rangeLeft = 200;
+  }
+  else if (direction == 'RIGHT' || direction == 'UPRIGHT' || direction == 'DOWNRIGHT'){
     stones[stone].x += players[player].width;
-    stones[stone].rangeRigth = 300;
+    stones[stone].rangeRigth = 200;
   }
 
   players[player].stone = -1;
