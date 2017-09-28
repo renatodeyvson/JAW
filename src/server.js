@@ -38,6 +38,10 @@ var essences = [],
 var stones = [],
     qtdStones = 30;
 
+//objects
+var objects = [],
+    qtdObjects = 5;
+
 //chat
 var chatHis = [ '', '', '', ''],
     chatHisColor = [ 'black', 'black', 'black', 'black'];
@@ -64,8 +68,8 @@ for (var i=0; i<qtdStones; ++i){
   stones[i] = {
     x: getRandomInt(-mapSize, mapSize),
     y: getRandomInt(-mapSize, mapSize),
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
     velocity: 10,
     onGround: true,
     rangeUp: 0,
@@ -74,6 +78,63 @@ for (var i=0; i<qtdStones; ++i){
     rangeRigth: 0,
     owner: -1,
   }
+}
+
+//objects
+objects[0] = {
+  x: -500,
+  y: -500,
+  width: 144,
+  height: 96,
+  rX: -500-68,
+  rY: -500-304,
+  rWidth: 300,
+  rHeight: 400,
+  obj: 'tree'
+}
+objects[1] = {
+  x: 200,
+  y: -300,
+  width: 144,
+  height: 96,
+  rX: 200-68,
+  rY: -300-304,
+  rWidth: 300,
+  rHeight: 400,
+  obj: 'tree'
+}
+objects[2] = {
+  x: -250,
+  y: -50,
+  width: 144,
+  height: 96,
+  rX: -250-68,
+  rY: -50-304,
+  rWidth: 300,
+  rHeight: 400,
+  obj: 'tree'
+}
+objects[3] = {
+  x: 400,
+  y: 400,
+  width: 144,
+  height: 96,
+  rX: 400-68,
+  rY: 400-304,
+  rWidth: 300,
+  rHeight: 400,
+  obj: 'tree'
+}
+objects[4] = {
+  x: -600,
+  y: 600,
+  width: 144,
+  height: 96,
+  rX: -600-68,
+  rY: 600-304,
+  rWidth: 300,
+  rHeight: 400,
+  obj: 'tree'
 }
 
 /******************************************************************************
@@ -121,7 +182,17 @@ io.on('connection', function(socket){
     essences: essences,
     qtdEssences: qtdEssences,
     stones: stones,
-    qtdStones: qtdStones
+    qtdStones: qtdStones,
+    objects: objects.map(function(a){
+      var b = {};
+      b.x = a.rX;
+      b.y = a.rY;
+      b.width = a.rWidth;
+      b.height = a.rHeight;
+      b.img = '../img/object/'+a.obj+'.png';
+      return b;
+    }),
+    qtdObjects: qtdObjects
   });
 
   //input down
@@ -190,6 +261,10 @@ io.on('connection', function(socket){
 function loop(){
   inputs();
   animateStones();
+
+  for(var i=0; i<qtdStones; ++i){
+    if(objectsCollision(stones[i])) resetStone(i, true);
+  }
 
   for (var i=0; i<qtdPlayers; ++i){
 
@@ -268,7 +343,7 @@ function inputs(){
   for (var i=0; i<qtdPlayers; ++i){
     //a
     if (key[i][65]){
-      if (players[i].x - players[i].velocity > -mapSize){
+      if (players[i].x - players[i].velocity > -mapSize && !objectsCollisionPredict(players[i], 'LEFT')){
         players[i].x -= players[i].velocity;
         players[i].walking = true;
         players[i].indexY = 1;
@@ -284,7 +359,7 @@ function inputs(){
     }
     //d
     if (key[i][68]){
-      if (players[i].x + players[i].velocity + players[i].width < mapSize){
+      if (players[i].x + players[i].velocity + players[i].width < mapSize && !objectsCollisionPredict(players[i], 'RIGHT')){
         players[i].x += players[i].velocity;
         players[i].walking = true;
         players[i].indexY = 0;
@@ -300,7 +375,7 @@ function inputs(){
     }
     //s
     if (key[i][83]){
-      if (players[i].y - players[i].velocity + players[i].height < mapSize){
+      if (players[i].y - players[i].velocity + players[i].height < mapSize && !objectsCollisionPredict(players[i], 'DOWN')){
         players[i].y += players[i].velocity;
         players[i].walking = true;
         players[i].direction = 'DOWN';
@@ -315,7 +390,7 @@ function inputs(){
     }
     //w
     if (key[i][87]){
-      if (players[i].y - players[i].velocity > -mapSize){
+      if (players[i].y - players[i].velocity > -mapSize && !objectsCollisionPredict(players[i], 'UP')){
         players[i].y -= players[i].velocity;
         players[i].walking = true;
         players[i].direction = 'UP';
@@ -393,7 +468,6 @@ function playersSend(){
     b.indexY = a.indexY;
     return b;
   })});
-  //io.emit('players listen', { qtdPlayers: qtdPlayers, players: players });
 }
 
 //send stones
@@ -406,7 +480,6 @@ function stonesSend(){
     b.owner = a.owner;
     return b;
   })});
-  //io.emit('stones listen', { qtdStones: qtdStones, stones: stones });
 }
 
 //send essences
@@ -417,7 +490,6 @@ function essencesSend(){
     b.y = a.y;
     return b;
   })});
-  //io.emit('essences listen', { qtdEssences: qtdEssences, essences: essences });
 }
 
 //random number between min and max
@@ -434,6 +506,59 @@ function checkCollision(obj1, obj2){
     && obj1.y + obj1.height > obj2.y && obj1.y < obj2.y + obj2.height){
     return true;
   }
+  return false;
+}
+
+//check collision between a object and all the others
+function objectsCollision(obj1){
+  for(var i=0; i<qtdObjects; ++i){
+    if(checkCollision(obj1, objects[i])) return true;
+  }
+
+  return false;
+}
+
+//check "future" collision between a object and all the others
+function objectsCollisionPredict(obj1, direction){
+  for(var i=0; i<qtdObjects; ++i){
+    if(checkCollisionPredict(obj1, objects[i], direction)) return true;
+  }
+
+  return false;
+}
+
+//check collision between two objects "in the future" WOOOOWWW
+function checkCollisionPredict(obj1, obj2, direction){
+
+  if(direction == 'LEFT'){
+    if (obj1 != undefined && obj2 != undefined
+      && obj1.x - obj1.velocity + obj1.width > obj2.x && obj1.x - obj1.velocity < obj2.x + obj2.width
+      && obj1.y + obj1.height > obj2.y && obj1.y < obj2.y + obj2.height){
+      return true;
+    }
+  }
+  else if(direction == 'RIGHT'){
+    if (obj1 != undefined && obj2 != undefined
+      && obj1.x + obj1.velocity + obj1.width > obj2.x && obj1.x + obj1.velocity < obj2.x + obj2.width
+      && obj1.y + obj1.height > obj2.y && obj1.y < obj2.y + obj2.height){
+      return true;
+    }
+  }
+  else if(direction == 'DOWN'){
+    if (obj1 != undefined && obj2 != undefined
+      && obj1.x + obj1.width > obj2.x && obj1.x < obj2.x + obj2.width
+      && obj1.y + obj1.velocity + obj1.height > obj2.y && obj1.y + obj1.velocity < obj2.y + obj2.height){
+      return true;
+    }
+  }
+  else if(direction == 'UP'){
+    if (obj1 != undefined && obj2 != undefined
+      && obj1.x + obj1.width > obj2.x && obj1.x < obj2.x + obj2.width
+      && obj1.y - obj1.velocity + obj1.height > obj2.y && obj1.y - obj1.velocity < obj2.y + obj2.height){
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -482,10 +607,14 @@ function animateStones(){
 }
 
 //set the stone state to default
-function resetStone(stone){
+function resetStone(stone, fatal){
   stones[stone].onGround = true;
   stones[stone].owner = -1;
-  if (stones[stone].x < -mapSize || stones[stone].y < -mapSize || stones[stone].x > mapSize || stones[stone].y > mapSize){
+  stones[stone].rangeLeft = 0;
+  stones[stone].rangeRigth = 0;
+  stones[stone].rangeDown = 0;
+  stones[stone].rangeUp = 0;
+  if(stones[stone].x < -mapSize || stones[stone].y < -mapSize || stones[stone].x > mapSize || stones[stone].y > mapSize || fatal){
     stones[stone].x = getRandomInt(-mapSize, mapSize);
     stones[stone].y = getRandomInt(-mapSize, mapSize);
   }

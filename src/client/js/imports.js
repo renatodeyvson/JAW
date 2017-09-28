@@ -5,6 +5,7 @@ var canvas = document.getElementById('canvasid'),
 
 //config
 ctx.font = 'bold 15px Courier';
+//ctx.scale(0.2, 0.2); //god vision
 
 //globals
 var prompt = false;

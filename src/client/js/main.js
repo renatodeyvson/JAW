@@ -10,6 +10,8 @@ var id = '',
     qtdEssences = 0,
     stones = [],
     qtdStones = 0,
+    objects = [],
+    qtdObjects = 0,
     myScore = 0,
     myKills = 0,
     myDeaths = 0,
@@ -43,6 +45,8 @@ socket.on('start', function(params){
   qtdEssences = params.qtdEssences;
   stones = params.stones;
   qtdStones = params.qtdStones;
+  objects = params.objects;
+  qtdObjects = params.qtdObjects;
 
   for(var i=0; i<qtdPlayers; ++i){
     players[i].frames = 4;
@@ -63,6 +67,12 @@ socket.on('start', function(params){
     stones[i].index = getRandomInt(0, 2);
     stones[i].time = getRandomInt(10, 200);
     stones[i].auxTime = 0;
+  }
+
+  for(var i=0; i<qtdObjects; ++i){
+    var imgObj = new Image();
+    imgObj.src = objects[i].img;
+    objects[i].img = imgObj;
   }
 
   render();
@@ -140,6 +150,7 @@ function render(){
   printPlayers();
   printEssences();
   printStones();
+  printObjects();
 
   cameraFollowStop();
 
@@ -164,10 +175,10 @@ function printPlayers(){
     var p = players[i];
     if (p != undefined){
       ctx.drawImage(char_img, p.index*p.width, p.indexY*p.height, p.width, p.height, p.x, p.y, p.width, p.height);
-      ctx.fillStyle = 'blue';
-      var nickX = p.x+(p.width/2)-(ctx.measureText(p.nickname).width/2),
-          nickY = p.y-5;
-      ctx.fillText(p.nickname, nickX, nickY);
+      //ctx.fillStyle = 'blue';
+      //var nickX = p.x+(p.width/2)-(ctx.measureText(p.nickname).width/2),
+      //    nickY = p.y-5;
+      //ctx.fillText(p.nickname, nickX, nickY);
     }
   }
 }
@@ -185,6 +196,14 @@ function printEssences(){
   for (var i=0; i<qtdEssences; ++i){
     var e = essences[i];
     ctx.drawImage(essence_img, e.index*e.width, 0, e.width, e.height, e.x, e.y, e.width, e.height);
+  }
+}
+
+//show the objects on map
+function printObjects(){
+  for(var i=0; i<qtdObjects; ++i){
+    var o = objects[i];
+    ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
   }
 }
 
