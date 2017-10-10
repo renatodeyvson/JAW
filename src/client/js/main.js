@@ -243,8 +243,11 @@ function calculateScore(){
     });
 
     if (players[0] != undefined) topScore1 = '#1 '+players[0].nickname+': '+players[0].kills+' / '+players[0].deaths+' ('+players[0].qtdEssences+')';
-    if (players[1] != undefined) topScore2 = '#2 '+players[1].nickname+': '+players[1].kills+' / '+players[1].deaths+' ('+players[1].qtdEssences+')';
-    if (players[2] != undefined) topScore3 = '#3 '+players[2].nickname+': '+players[2].kills+' / '+players[2].deaths+' ('+players[2].qtdEssences+')';
+    else topScore1 = '';
+    if (players[1] != undefined && qtdPlayers > 1) topScore2 = '#2 '+players[1].nickname+': '+players[1].kills+' / '+players[1].deaths+' ('+players[1].qtdEssences+')';
+    else topScore2 = '';
+    if (players[2] != undefined && qtdPlayers > 2) topScore3 = '#3 '+players[2].nickname+': '+players[2].kills+' / '+players[2].deaths+' ('+players[2].qtdEssences+')';
+    else topScore3 = '';
 
   }
 }
