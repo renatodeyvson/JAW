@@ -32,11 +32,11 @@ var ids = [],
 
 //essences
 var essences = [],
-    qtdEssences = 100;
+    qtdEssences = 5;
 
 //stones
 var stones = [],
-    qtdStones = 30;
+    qtdStones = 10;
 
 //objects
 var objects = [],
@@ -156,7 +156,7 @@ io.on('connection', function(socket){
     y: -36,
     width: 48,
     height: 72,
-    velocity: 5,
+    velocity: 4,
     qtdEssences: 0,
     kills: 0,
     deaths: 0,
@@ -272,6 +272,7 @@ function loop(){
     for (var j=0; j<qtdEssences;++j){
       if (checkCollision(players[i], essences[j])){
         players[i].qtdEssences += 1;
+        if(players[i].velocity < 6) players[i].velocity += 0.1; 
         essences[j].x = getRandomInt(-mapSize, mapSize);
         essences[j].y = getRandomInt(-mapSize, mapSize);
 
@@ -312,7 +313,7 @@ function loop(){
           y: -players[i].height/2,
           width: players[i].width,
           height: players[i].height,
-          velocity: players[i].velocity,
+          velocity: 4,
           qtdEssences: 0,
           kills: players[i].kills,
           deaths: players[i].deaths+1,

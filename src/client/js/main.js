@@ -25,10 +25,10 @@ var world_img = new Image(),
     stone_img = new Image(),
     essence_img = new Image();
 
-world_img.src = '../img/world/map.png';
 char_img.src = '../img/char/l.png';
+world_img.src = '../img/world/map.png';
 stone_img.src = '../img/stone/pumpkin.png';
-essence_img.src = '../img/essence/thing.png';
+essence_img.src = '../img/essence/gold_thing.png';
 
 /******************************************************************************
 *                                socket.io                                    *
