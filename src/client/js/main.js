@@ -158,10 +158,21 @@ function render(){
   printQtdPlayers();
   calculateScore();
   printScore();
+  if(showTutorial) printTutorial();
   attChat();
 
   window.requestAnimFrame(render);
 
+}
+
+//show the tutorial on screen
+function printTutorial(){
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 30px Courier';
+  ctx.fillText('move with \'w\' \'a\' \'s\' \'d\'', 250, 460);
+  ctx.fillText('shoot with \'p\'', 350, 490);
+  //ctx.fillText('change your name with \'n\'', 250, 520);
+  ctx.font = 'bold 15px Courier';
 }
 
 //show the world on map (clean the screen)
