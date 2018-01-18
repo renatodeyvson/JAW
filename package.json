@@ -1,7 +1,7 @@
 {
   "name": "jaw",
   "version": "1.0.0",
-  "description": "just another world, a [ js, open world, 2d, pixelated, survivor, enter and play, realtime online, browser ] game",
+  "description": "just another world, a [ js, open world, 2d, pixelated, enter and play, realtime online, browser ] game",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,7 +17,6 @@
     "js",
     "2d",
     "pixelated",
-    "survivor",
     "realtime",
     "online",
     "browser",
