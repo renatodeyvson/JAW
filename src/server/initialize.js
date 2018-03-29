@@ -1,65 +1,44 @@
 'use strict';
 
-const
-
 //imports
-util = require('../server/util'),
+const util = require('../server/util');
 
 //map
-mapSize = 1000,
-safeSize = 100;
-
-let
-
-//players
-ids = [],
-players = [],
-qtdPlayers = 0,
-
-//essences
-essences = [],
-qtdEssences = 5,
-
-//stones
-stones = [],
-qtdStones = 10,
-
-//objects
-objects = [],
-qtdObjects = 5,
+const mapSize = 1000;
+const safeSize = 100;
 
 //chat
-chatHis = [ '', '', '', ''],
-chatHisColor = [ 'black', 'black', 'black', 'black'],
+let chatHis = [ '', '', '', ''];
+let chatHisColor = [ 'black', 'black', 'black', 'black'];
 
 //inputs
-key = [];
+let key = [];
+
+//essences
+let essences = [];
+let numEssences = 5;
+
+//objects
+let objects = [];
+let numObjects = 5;
+
+//players
+let ids = [];
+let players = [];
+let numPlayers = 0;
+
+//stones
+let stones = [];
+let numStones = 10;
 
 module.exports = () => {
     //essences
-    for (let i=0; i<qtdEssences; ++i){
+    for (let i=0; i<numEssences; ++i){
         essences[i] = {
             x: util.getRandomInt(-mapSize, mapSize),
             y: util.getRandomInt(-mapSize, mapSize),
             width: 20,
             height: 20
-        };
-    }
-    
-    //stones
-    for (let i=0; i<qtdStones; ++i){
-        stones[i] = {
-            x: util.getRandomInt(-mapSize, mapSize),
-            y: util.getRandomInt(-mapSize, mapSize),
-            width: 48,
-            height: 48,
-            velocity: 10,
-            onGround: true,
-            rangeUp: 0,
-            rangeDown: 0,
-            rangeLeft: 0,
-            rangeRigth: 0,
-            owner: -1,
         };
     }
     
@@ -120,20 +99,37 @@ module.exports = () => {
         obj: 'tree'
     };
 
+    //stones
+    for (let i=0; i<numStones; ++i){
+        stones[i] = {
+            x: util.getRandomInt(-mapSize, mapSize),
+            y: util.getRandomInt(-mapSize, mapSize),
+            width: 48,
+            height: 48,
+            velocity: 10,
+            onGround: true,
+            rangeUp: 0,
+            rangeDown: 0,
+            rangeLeft: 0,
+            rangeRigth: 0,
+            owner: -1,
+        };
+    }
+
     return {
         mapSize: mapSize,
         safeSize: safeSize,
-        ids: ids,
-        players: players,
-        qtdPlayers: qtdPlayers,
-        essences: essences,
-        qtdEssences: qtdEssences,
-        stones: stones,
-        qtdStones: qtdStones,
-        objects: objects,
-        qtdObjects: qtdObjects,
         chatHis: chatHis,
         chatHisColor: chatHisColor,
-        key: key
+        key: key,
+        essences: essences,
+        numEssences: numEssences,
+        objects: objects,
+        numObjects: numObjects,
+        ids: ids,
+        players: players,
+        numPlayers: numPlayers,
+        stones: stones,
+        numStones: numStones
     };
 }

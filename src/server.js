@@ -4,49 +4,45 @@
 *                                  globals                                    *
 ******************************************************************************/
 
-const
-
 //imports
-express = require('express'),
-app = express(),
-http = require('http').Server(app),
-io = require('socket.io')(http),
-util = require('./server/util'),
-inputs = require('./server/inputs'),
-initialize = require('./server/initialize')(),
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const initialize = require('./server/initialize')();
+const inputs = require('./server/inputs');
+const util = require('./server/util');
+const io = require('socket.io')(http);
 
 //listen
-port = process.env.PORT || 3000,
+const port = process.env.PORT || 3000;
 
 //map
-mapSize = initialize.mapSize,
-safeSize = initialize.safeSize;
-
-let
-
-//players
-ids = initialize.ids,
-players = initialize.players,
-qtdPlayers = initialize.qtdPlayers,
-
-//essences
-essences = initialize.essences,
-qtdEssences = initialize.qtdEssences,
-
-//stones
-stones = initialize.stones,
-qtdStones = initialize.qtdStones,
-
-//objects
-objects = initialize.objects,
-qtdObjects = initialize.qtdObjects,
+const mapSize = initialize.mapSize;
+const safeSize = initialize.safeSize;
 
 //chat
-chatHis = initialize.chatHis,
-chatHisColor = initialize.chatHisColor,
+let chatHis = initialize.chatHis;
+let chatHisColor = initialize.chatHisColor;
 
-//inputs
-key = initialize.key;
+//imputs
+let key = initialize.key;
+
+//essences
+let essences = initialize.essences;
+let numEssences = initialize.numEssences;
+
+//objects
+let objects = initialize.objects;
+let numObjects = initialize.numObjects;
+
+//players
+let ids = initialize.ids;
+let players = initialize.players;
+let numPlayers = initialize.numPlayers;
+
+//stones
+let stones = initialize.stones;
+let numStones = initialize.numStones;
 
 /******************************************************************************
 *                                   setup                                     *
@@ -68,19 +64,19 @@ http.listen(port, () => {
 io.on('connection', (socket) => {
 
     //prepare key listener
-    key[qtdPlayers] = [];
+    key[numPlayers] = [];
 
     //save player's data
-    ids[socket.id] = qtdPlayers;
-    players[qtdPlayers] = {
+    ids[socket.id] = numPlayers;
+    players[numPlayers] = {
         socket: socket.id,
         nickname: 'anonymous',
-        x: -24,
-        y: -36,
-        width: 48,
-        height: 72,
-        velocity: 4,
-        qtdEssences: 0,
+        x: -18,
+        y: -18,
+        width: 36,
+        height: 36,
+        velocity: 5,
+        numEssences: 0,
         kills: 0,
         deaths: 0,
         stone: -1,
@@ -90,11 +86,11 @@ io.on('connection', (socket) => {
     };
 
     //put log
-    const chatUpdate = util.chatPut('['+players[qtdPlayers].nickname+'] connected', 'green', chatHis, chatHisColor);
+    const chatUpdate = util.chatPut('['+players[numPlayers].nickname+'] connected', 'green', chatHis, chatHisColor);
     chatHis = chatUpdate.chatHis;
     chatHisColor = chatUpdate.chatHisColor;
 
-    ++qtdPlayers;
+    ++numPlayers;
 
     //send chat history
     util.chatSend(io, chatHis, chatHisColor);
@@ -103,11 +99,11 @@ io.on('connection', (socket) => {
     socket.emit('id', { id: socket.id });
     io.emit('start', {
         players: players,
-        qtdPlayers: qtdPlayers,
+        numPlayers: numPlayers,
         essences: essences,
-        qtdEssences: qtdEssences,
+        numEssences: numEssences,
         stones: stones,
-        qtdStones: qtdStones,
+        numStones: numStones,
         objects: objects.map((a) => {
             let b = {};
             b.x = a.rX;
@@ -117,7 +113,7 @@ io.on('connection', (socket) => {
             b.img = '../img/object/'+a.obj+'.png';
             return b;
         }),
-        qtdObjects: qtdObjects
+        numObjects: numObjects
     });
 
     //input down
@@ -148,7 +144,7 @@ io.on('connection', (socket) => {
                 chatHis = chatUpdate.chatHis;
                 chatHisColor = chatUpdate.chatHisColor;
 
-                util.playersSend(io, players, qtdPlayers);
+                util.playersSend(io, players, numPlayers);
             }
 
         }
@@ -170,14 +166,14 @@ io.on('connection', (socket) => {
         let id = ids[socket.id];
 
         //reset stone
-        if (players[id].stone > -1) resetStone(io, stones, qtdStones, players[id].stone, mapSize);
+        if (players[id].stone > -1) util.resetStone(io, stones, numStones, players[id].stone, mapSize);
 
         //the current player will be the reference of the last player connected
-        ids[players[qtdPlayers-1].socket] = id;
-        players[id] = players[qtdPlayers-1];
+        ids[players[numPlayers-1].socket] = id;
+        players[id] = players[numPlayers-1];
 
         //when a new player connect, the last player will be overwritten
-        --qtdPlayers;
+        --numPlayers;
 
         //put log
         const chatUpdate = util.chatPut('['+players[id].nickname+'] disconnected', 'red', chatHis, chatHisColor);
@@ -187,7 +183,7 @@ io.on('connection', (socket) => {
         //send chat history
         util.chatSend(io, chatHis, chatHisColor);
 
-        util.playersSend(io, players, qtdPlayers);
+        util.playersSend(io, players, numPlayers);
     });
 
 });
@@ -198,29 +194,29 @@ io.on('connection', (socket) => {
 
 //main function
 const loop = () => {
-    inputs(io, key, players, qtdPlayers, stones, qtdStones, objects, qtdObjects, mapSize);
-    util.animateStones(io, stones, qtdStones, mapSize);
+    inputs(io, key, players, numPlayers, stones, numStones, objects, numObjects, mapSize);
+    util.animateStones(io, stones, numStones, mapSize);
 
-    for(let i=0; i<qtdStones; ++i){
-        if(util.objectsCollision(stones[i], objects, qtdObjects)) util.resetStone(io, stones, qtdStones, i, mapSize, true);
+    for(let i=0; i<numStones; ++i){
+        if(util.objectsCollision(stones[i], objects, numObjects)) util.resetStone(io, stones, numStones, i, mapSize, true);
     }
 
-    for (let i=0; i<qtdPlayers; ++i){
+    for (let i=0; i<numPlayers; ++i){
 
         //collision between player and essence
-        for (let j=0; j<qtdEssences;++j){
+        for (let j=0; j<numEssences;++j){
             if (util.checkCollision(players[i], essences[j])){
-                players[i].qtdEssences += 1;
+                players[i].numEssences += 1;
                 if(players[i].velocity < 6) players[i].velocity += 0.1; 
                 essences[j].x = util.getRandomInt(-mapSize, mapSize);
                 essences[j].y = util.getRandomInt(-mapSize, mapSize);
 
-                util.playersSend(io, players, qtdPlayers);
-                util.essencesSend(io, essences, qtdEssences);
+                util.playersSend(io, players, numPlayers);
+                util.essencesSend(io, essences, numEssences);
             }
         }
 
-        for (let j=0; j<qtdStones;++j){
+        for (let j=0; j<numStones;++j){
 
             //collision between player and stone (pick)
             if (util.checkCollision(players[i], stones[j]) && players[i].stone < 0 && stones[j].onGround){
@@ -230,8 +226,8 @@ const loop = () => {
                 stones[j].x = players[i].x;
                 stones[j].y = players[i].y;
 
-                util.playersSend(io, players, qtdPlayers);
-                util.stonesSend(io, stones, qtdStones);
+                util.playersSend(io, players, numPlayers);
+                util.stonesSend(io, stones, numStones);
             }
 
             //collision between player and stone (shoot)
@@ -242,7 +238,7 @@ const loop = () => {
                 if (players[i].stone > -1){
                     stones[players[i].stone].onGround = true;
 
-                    util.stonesSend(io, stones, qtdStones);
+                    util.stonesSend(io, stones, numStones);
                 }
                 players[stones[j].owner].kills += 1;
                 players[i] = {
@@ -253,22 +249,22 @@ const loop = () => {
                     width: players[i].width,
                     height: players[i].height,
                     velocity: 4,
-                    qtdEssences: 0,
+                    numEssences: 0,
                     kills: players[i].kills,
                     deaths: players[i].deaths+1,
                     stone: -1,
                     walking: false,
                     indexY: 0,
                     direction: 'RIGHT'
-                }
+                };
 
-                util.playersSend(io, players, qtdPlayers);
+                util.playersSend(io, players, numPlayers);
             }
 
         }
 
     }
-}
+};
 
 //infinit loop
 setInterval(loop, 15);
